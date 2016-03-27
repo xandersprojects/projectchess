@@ -1,4 +1,4 @@
-package game;
+package chess;
 
 /**
  * Represents a chess board.
@@ -29,9 +29,9 @@ public class Board {
 		_board[119].putPiece(h8);
 		/* Place all knights */
 		Knight b1 = new Knight(1, 1);
-		_board[1].putPiece(a2);
+		_board[1].putPiece(b1);
 		Knight g1 = new Knight(6, 1);
-		_board[6].putPiece(a7);
+		_board[6].putPiece(g1);
 		Knight b8 = new Knight(113, 0);
 		_board[113].putPiece(b8);
 		Knight g8 = new Knight(118, 0);

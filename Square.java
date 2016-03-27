@@ -1,4 +1,4 @@
-package game;
+package chess;
 
 /**
  * Represents a square on a chess board.
@@ -13,7 +13,7 @@ public class Square {
 
 	/** Clears this square of any pieces. */
 	void clear() {
-		this.piece = NULL;
+		this.piece = null;
 	}
 
 	/** Returns the piece on this square. */
@@ -28,7 +28,7 @@ public class Square {
 
 	/** Returns true iff this square has no piece on it. */
 	boolean isEmpty() {
-		if (this.piece == NULL) {
+		if (this.piece == null) {
 			return true;
 		}
 		return false;

@@ -1,4 +1,4 @@
-package game.pieces;
+package chess;
 
 /**
  * Represents a pawn.
@@ -9,11 +9,11 @@ public class Pawn extends Piece {
 	/** Initializes a COLOR pawn at POSITION. */
 	Pawn(int position, int color) {
 		super();
-		_sliding = true;
-		_color = color;
+		this.setSliding(true);
+		this.setColor(color);
 		_moved = false;
-		possibles = {16, 32};
-		value = 1.0;
+		int[] possibles = {16, 32};
+		this.setValue(1.0);
 		_position = position;
 	}
 

@@ -6,4 +6,9 @@ package game;
 
 public class ComputerPlayer extends Player {
 	
+	ComputerPlayer(int color) {
+		this.setColor(color);
+		this.setType(1);
+	}
+
 }

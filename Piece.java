@@ -1,4 +1,4 @@
-package game.pieces;
+package chess;
 
 /**
  * Represents a chess piece.
@@ -8,7 +8,7 @@ public abstract class Piece {
 	
 	/** Sets the color of the piece. 1 if white, 0 if black. */
 	void setColor(int color) {
-		_color = color
+		_color = color;
 	}
 
 	/** Returns the color of the piece. 1 if white, 0 if black. */
@@ -27,6 +27,16 @@ public abstract class Piece {
 	/** Sets sliding property of this piece. Useful for promotion, etc. */
 	void setSliding(boolean sliding) {
 		_sliding = sliding;
+	}
+
+	/** Returns the nominal value of this piece. */
+	double getValue() {
+		return value;
+	}
+
+	/** Sets the nominal value of this piece. */
+	void setValue(double worth) {
+		value = worth;
 	}
 
 

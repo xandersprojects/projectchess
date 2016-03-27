@@ -1,4 +1,4 @@
-package game.pieces;
+package chess;
 
 /**
  * Represents a rook.
@@ -9,10 +9,10 @@ public class Rook extends Piece {
 	/** Initializes a COLOR rook at POSITION. */
 	Rook(int position, int color) {
 		super();
-		_color = color;
-		_sliding = true;
-		possibles = {16, 1, -16, -1};
-		value = 5.0;
+		this.setColor(color);
+		this.setSliding(true);
+		int[] possibles = {16, 1, -16, -1};
+		this.setValue(5.0);
 		_position = position;
 	}
 	
