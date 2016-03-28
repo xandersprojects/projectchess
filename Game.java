@@ -1,7 +1,5 @@
 package chess;
 
-import chess.*;
-
 /**
  * Represents a chess game.
  */
@@ -9,17 +7,18 @@ import chess.*;
 public class Game {
 
 	Game(int player1, int player2) {
-		Player white, black;
+		Player white = null;
+		Player black = null;
 		if (player1 == 0) {
-			HumanPlayer white = new HumanPlayer(1);
+			white = new HumanPlayer(1);
 		} else if (player1 == 1) {
-			ComputerPlayer white = new ComputerPlayer(1);
+			white = new ComputerPlayer(1);
 		}
 
 		if (player2 == 0) {
-			HumanPlayer black = new HumanPlayer(0);
+			black = new HumanPlayer(0);
 		} else if (player2 == 1) {
-			ComputerPlayer black = new ComputerPlayer(1);
+			black = new ComputerPlayer(1);
 		}
 
 		if (white == null || black == null) {
