@@ -1,4 +1,3 @@
-package chess;
 
 /**
  * Represents an AI chess player.

@@ -1,4 +1,3 @@
-package game;
 
 /**
  * Represents a move.

@@ -1,4 +1,3 @@
-package chess;
 
 /**
  * Represents a chess game.
@@ -28,8 +27,37 @@ public class Game {
 		_player2 = black;
 		_board = new Board(_player1, _player2);
 	}
-	/* Ask for player settings */
-	/* Initializes a board */
+
+
+	Player getPlayer1() {
+		return _player1;
+	}
+
+	Player getPlayer2() {
+		return _player2;
+	}
+
+	Board getBoard() {
+		return _board;
+	}
+
+	/* Prints, in text format, the current board. */
+	void printBoard() {
+		Square[] current = getBoard().getSquares();
+		String rank = "";
+		for (int i = current.length - 1; i >= 0; i--) {
+			if (i % 16 == 0) {
+				System.out.println(rank);
+				rank = "";
+				continue;
+			}
+			if ((i & 8) == 8) {
+				continue;
+			}
+			rank = current[i] + " " + rank;
+		}
+	}
+
 	/* Contains a play() function in while loop to handle the game */
 
 	/* Player 1 of this game, handling white. */

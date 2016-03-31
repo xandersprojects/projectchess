@@ -1,4 +1,3 @@
-package chess;
 
 /**
  * Represents a square on a chess board.

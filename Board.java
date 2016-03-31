@@ -1,4 +1,3 @@
-package chess;
 
 /**
  * Represents a chess board.
@@ -88,6 +87,10 @@ public class Board {
 		_board[102].putPiece(g7);
 		Pawn h7 = new Pawn(103, 0);
 		_board[103].putPiece(h7);
+	}
+
+	Square[] getSquares() {
+		return _board;
 	}
 
 	/** The current board. */

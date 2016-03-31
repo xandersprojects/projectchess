@@ -1,4 +1,3 @@
-package chess;
 
 /**
  * Represents a chess piece.
