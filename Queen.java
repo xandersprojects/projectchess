@@ -9,19 +9,14 @@ public class Queen extends Piece {
 	Queen(int position, int color) {
 		super();
 		if (color == 1) {
-			_textRepr = "Q";
+			this.setTextRepr("Q");
 		} else {
-			_textRepr = "q";
+			this.setTextRepr("q");
 		}
 		this.setSliding(true);
 		this.setColor(color);
 		int[] possibles = {16, 17, 1, -15, -16, -17, -1, 15};
 		this.setValue(9.0);
-		_position = position;
+		this.setPosition(position);
 	}
-
-	/** Position of this queen on the board. */
-	private int _position;
-	/** Text representation of this piece on a text board. */
-	private String _textRepr;
 }

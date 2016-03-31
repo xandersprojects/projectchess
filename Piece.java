@@ -38,6 +38,22 @@ public abstract class Piece {
 		value = worth;
 	}
 
+	void setTextRepr(String str) {
+		_textRepr = str;
+	}
+
+	String getTextRepr() {
+		return _textRepr;
+	}
+
+	void setPosition(int pos) {
+		_position = pos;
+	}
+
+	int getPosition() {
+		return _position;
+	}
+
 
 	/** The color of the piece. 1 if white, 0 if black. */
 	private int _color;
@@ -47,5 +63,9 @@ public abstract class Piece {
 	private int[] possibles;
 	/** Value of this piece. */
 	private double value;
+	/** Text representation of this piece on a text board. */
+	private String _textRepr;
+	/** Position of this knight on the board. */
+	private int _position;
 
 }

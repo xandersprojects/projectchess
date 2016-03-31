@@ -10,13 +10,25 @@ public class Board {
 		_white = white;
 		_black = black;
 		_board = new Square[128];
+		initializer();
+		setup();
 	}
 
-	/** Resets the board to the initial position. */
-	void reset() {
+	/** Initializes squares into the board. */
+	void initializer() {
+		for (int i = 0; i < 128; i++) {
+			_board[i] = new Square(null);
+		}
+	}
+
+	void clearer() {
 		for (int i = 0; i < 128; i++) {
 			_board[i].clear();
 		}
+	}
+
+	/** Resets the board to the initial position. */
+	void setup() {
 		/* Place all rooks */
 		Rook a1 = new Rook(0, 1);
 		_board[0].putPiece(a1);

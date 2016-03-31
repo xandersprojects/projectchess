@@ -9,20 +9,15 @@ public class Knight extends Piece {
 	Knight(int position, int color) {
 		super();
 		if (color == 1) {
-			_textRepr = "N";
+			this.setTextRepr("N");
 		} else {
-			_textRepr = "n";
+			this.setTextRepr("n");
 		}
 		this.setSliding(false);
 		this.setColor(color);
 		int[] possibles = {33, 18, -14, -31, -33, -18, 14, 31};
 		this.setValue(3.0);
-		_position = position;
+		this.setPosition(position);
 	}
-
-	/** Position of this knight on the board. */
-	private int _position;
-	/** Text representation of this piece on a text board. */
-	private String _textRepr;
 
 }
