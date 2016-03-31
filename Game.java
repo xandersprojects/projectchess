@@ -43,19 +43,20 @@ public class Game {
 
 	/* Prints, in text format, the current board. */
 	void printBoard() {
-		System.out.println("===================");
+		System.out.println("  ===================");
 		Square[] current = getBoard().getSquares();
 		String rank = "|";
 		for (int i = current.length - 1; i >= 0; i--) {
 
 			if (i % 16 == 0) {
+				String ranknum = Integer.toString(i / 16 + 1);
 				Piece curr = current[i].getPiece();
 				if (curr == null) {
 					rank = "-" + " " + rank;
 				} else {
 					rank = curr.getTextRepr() + " " + rank;
 				}
-				rank = "| " + rank;
+				rank = ranknum + " | " + rank;
 				System.out.println(rank);
 				rank = "|";
 				continue;
@@ -71,7 +72,8 @@ public class Game {
 				rank = curr.getTextRepr() + " " + rank;
 			}
 		}
-		System.out.println("===================");
+		System.out.println("  ===================");
+		System.out.println("    a b c d e f g h  ");
 	}
 
 	/* Contains a play() function in while loop to handle the game */
