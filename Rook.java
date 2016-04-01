@@ -16,6 +16,7 @@ public class Rook extends Piece {
 		this.setColor(color);
 		this.setSliding(true);
 		int[] possibles = {16, 1, -16, -1};
+		this.setPossibles(possibles);
 		this.setValue(5.0);
 		this.setPosition(position);
 	}

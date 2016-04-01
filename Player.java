@@ -25,6 +25,9 @@ public abstract class Player {
 		_player = type;
 	}
 
+	/** Makes a move on BOARD. */
+	abstract Move makeMove(Board board);
+
 	/* The color pieces this player controls. 1 for white, 0 for black. */
 	private int _color;
 	/* 1 if player is AI; 0 if player is human. */

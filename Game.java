@@ -1,3 +1,4 @@
+import java.util.Scanner;
 
 /**
  * Represents a chess game.
@@ -18,10 +19,6 @@ public class Game {
 			black = new HumanPlayer(0);
 		} else if (player2 == 1) {
 			black = new ComputerPlayer(1);
-		}
-
-		if (white == null || black == null) {
-			System.out.println("Error reached, terminate program");
 		}
 		_player1 = white;
 		_player2 = black;
@@ -76,7 +73,27 @@ public class Game {
 		System.out.println("    a b c d e f g h  ");
 	}
 
-	/* Contains a play() function in while loop to handle the game */
+	/** While loop controlling game flow. */
+	void play() {
+		while (true /* Game is not yet over*/) {
+			printBoard();
+			System.out.println();
+			/* White player's move */
+			if (_player1.getType() == 0) { /** Player 1 is human */
+				HumanPlayer white = (HumanPlayer) _player1;
+				Scanner scan = new Scanner(System.in);
+				System.out.println("Your move: ");
+				String trying = scan.next();
+				Move propose = white.proposeMove(_board, trying);
+				while (propose == null)  {
+					System.out.println("That move is invalid. Try again: ");
+					trying = scan.next();
+					propose = white.proposeMove(_board, trying);
+				}
+				/* Actually make the move. */
+			}
+		}
+	}
 
 	/* Player 1 of this game, handling white. */
 	private Player _player1;

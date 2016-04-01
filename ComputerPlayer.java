@@ -10,4 +10,9 @@ public class ComputerPlayer extends Player {
 		this.setType(1);
 	}
 
+	/** Makes a move on BOARD. */
+	Move makeMove(Board board) {
+		return null;
+	}
+
 }

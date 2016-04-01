@@ -17,6 +17,7 @@ public class Pawn extends Piece {
 		this.setColor(color);
 		_moved = false;
 		int[] possibles = {16, 32};
+		this.setPossibles(possibles);
 		this.setValue(1.0);
 		this.setPosition(position);
 	}

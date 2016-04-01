@@ -16,6 +16,7 @@ public class Knight extends Piece {
 		this.setSliding(false);
 		this.setColor(color);
 		int[] possibles = {33, 18, -14, -31, -33, -18, 14, 31};
+		this.setPossibles(possibles);
 		this.setValue(3.0);
 		this.setPosition(position);
 	}

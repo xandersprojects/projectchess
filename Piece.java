@@ -54,13 +54,21 @@ public abstract class Piece {
 		return _position;
 	}
 
+	void setPossibles(int[] possible) {
+		_possibles = possible;
+	}
+
+	int[] getPossibles() {
+		return _possibles;
+	}
+
 
 	/** The color of the piece. 1 if white, 0 if black. */
 	private int _color;
 	/** True iff this is a sliding piece. */
 	private boolean _sliding;
 	/** All possible base moves for this piece. */
-	private int[] possibles;
+	private int[] _possibles;
 	/** Value of this piece. */
 	private double value;
 	/** Text representation of this piece on a text board. */
