@@ -16,12 +16,12 @@ public class HumanPlayer extends Player {
 
 	/** User inputted proposed move to make. */
 	Move proposeMove(Board board, String move) {
-		String pattern = "([RNBQK]?|[a-h]?)([a-h]?|[1-8]?)([x]?)([a-h]+[1-8])([=][RNBQ])?([+]|[#])?";
+		String pattern = "^([RNBQK]?|[a-h]?)([a-h]?|[1-8]?)([x]?)(([a-h]+[1-8])|(0-0)|(0-0-0))([=][RNBQ])?([+]|[#])?$";
 		Pattern anyMove = Pattern.compile(pattern);
 		Matcher m = anyMove.matcher(move);
 		Move propose;
 		if (m.find()) {
-			propose = new Move(m.group(1), m.group(2), m.group(4), m.group(5));
+			// propose = new Move(m.group(1), m.group(2), m.group(4), m.group(5));
 			System.out.println("Found");
 		}
 		return null;
