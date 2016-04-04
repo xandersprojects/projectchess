@@ -14,6 +14,7 @@ public class Queen extends Piece {
 			this.setTextRepr("q");
 		}
 		this.setSliding(true);
+		this.setPieceCode(5);
 		this.setColor(color);
 		int[] possibles = {16, 17, 1, -15, -16, -17, -1, 15};
 		this.setPossibles(possibles);

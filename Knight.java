@@ -14,6 +14,7 @@ public class Knight extends Piece {
 			this.setTextRepr("n");
 		}
 		this.setSliding(false);
+		this.setPieceCode(3);
 		this.setColor(color);
 		int[] possibles = {33, 18, -14, -31, -33, -18, 14, 31};
 		this.setPossibles(possibles);

@@ -14,6 +14,7 @@ public class King extends Piece {
 			this.setTextRepr("k");
 		}
 		this.setSliding(true);
+		this.setPieceCode(6);
 		this.setColor(color);
 		int[] possibles = {16, 17, 1, -15, -16, -17, -1, 15};
 		this.setPossibles(possibles);

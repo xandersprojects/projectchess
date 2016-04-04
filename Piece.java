@@ -62,6 +62,14 @@ public abstract class Piece {
 		return _possibles;
 	}
 
+	void setPieceCode(int code) {
+		_pieceCode = code;
+	}
+
+	int getPieceCode() {
+		return _pieceCode;
+	}
+
 
 	/** The color of the piece. 1 if white, 0 if black. */
 	private int _color;
@@ -75,5 +83,7 @@ public abstract class Piece {
 	private String _textRepr;
 	/** Position of this knight on the board. */
 	private int _position;
+	/** Code of the piece. P=1, R=2, N=3, B=4, Q=5, K=6 */
+	private int _pieceCode;
 
 }

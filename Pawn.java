@@ -14,6 +14,7 @@ public class Pawn extends Piece {
 			this.setTextRepr("p");
 		}
 		this.setSliding(true);
+		this.setPieceCode(1);
 		this.setColor(color);
 		_moved = false;
 		int[] possibles = {16, 32};

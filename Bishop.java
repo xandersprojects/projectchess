@@ -14,6 +14,7 @@ public class Bishop extends Piece {
 			this.setTextRepr("b");
 		}
 		this.setSliding(true);
+		this.setPieceCode(4);
 		this.setColor(color);
 		int[] possibles = {17, -15, -17, 15};
 		this.setPossibles(possibles);
