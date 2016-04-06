@@ -19,7 +19,7 @@ public class HumanPlayer extends Player {
 		String pattern = "^(([RNBQK]{1}([a-h]|[1-8])?)|([a-h]))?([x])?(([a-h]+[1-8])|(0-0)|(0-0-0))([=][RNBQ])?([+]|[#])?$";
 		Pattern anyMove = Pattern.compile(pattern);
 		Matcher m = anyMove.matcher(move);
-		Move propose;
+		Move propose = null;
 		if (m.find()) {
 
 			System.out.println("Found");
@@ -43,16 +43,14 @@ public class HumanPlayer extends Player {
 												m.group(7), m.group(8), m.group(9),
 												m.group(10), m.group(11), move, board,
 												this.getColor());
-
-
-			// propose = new Move(m.group(1), m.group(2), m.group(4), m.group(5));
+			
 		}
-		return null;
+		return propose;
 	}
 
 	/** Makes a move on BOARD. */
-	Move makeMove(Board board) {
-		return null;
+	void makeMove(Board board) {
+		;
 	}
 
 	int squareToPos(String square) {

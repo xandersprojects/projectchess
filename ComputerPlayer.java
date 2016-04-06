@@ -11,8 +11,8 @@ public class ComputerPlayer extends Player {
 	}
 
 	/** Makes a move on BOARD. */
-	Move makeMove(Board board) {
-		return null;
+	void makeMove(Board board) {
+		;
 	}
 
 }
