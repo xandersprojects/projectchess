@@ -17,8 +17,13 @@ public class Pawn extends Piece {
 		this.setPieceCode(1);
 		this.setColor(color);
 		_moved = false;
-		int[] possibles = {16, 32};
-		this.setPossibles(possibles);
+		if (color == 1) {
+			int[] possibles = {16, 32, 15, 17};
+			this.setPossibles(possibles);
+		} else { /* Pawns move the other way if of color black */
+			int[] possibles = {-16, -32, -15, -17};
+			this.setPossibles(possibles);
+		}
 		this.setValue(1.0);
 		this.setPosition(position);
 	}

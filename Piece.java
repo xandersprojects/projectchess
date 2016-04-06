@@ -58,7 +58,7 @@ public abstract class Piece {
 		_possibles = possible;
 	}
 
-	int[] getPossibles() {
+	static int[] getPossibles() {
 		return _possibles;
 	}
 
@@ -76,7 +76,7 @@ public abstract class Piece {
 	/** True iff this is a sliding piece. */
 	private boolean _sliding;
 	/** All possible base moves for this piece. */
-	private int[] _possibles;
+	private static int[] _possibles;
 	/** Value of this piece. */
 	private double value;
 	/** Text representation of this piece on a text board. */
