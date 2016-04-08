@@ -49,8 +49,15 @@ public class HumanPlayer extends Player {
 	}
 
 	/** Makes a move on BOARD. */
-	void makeMove(Board board) {
-		;
+	void makeMove(Move move, Board board) {
+		/* Piece in question */
+		Piece moving = move.getPiece();
+		/* Place piece on destination square */
+		board.getSquares()[move.getDest()].putPiece(moving);
+		/* Clear piece on the start square */
+		board.getSquares()[move.getStart()].clear();
+		/* Print out the move made. */
+		System.out.println(move.getStr());
 	}
 
 	int squareToPos(String square) {

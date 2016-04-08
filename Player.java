@@ -26,7 +26,7 @@ public abstract class Player {
 	}
 
 	/** Makes a move on BOARD. */
-	abstract void makeMove(Board board);
+	abstract void makeMove(Move move, Board board);
 
 	/* The color pieces this player controls. 1 for white, 0 for black. */
 	private int _color;

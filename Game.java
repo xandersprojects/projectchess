@@ -93,7 +93,7 @@ public class Game {
 				/* Check that the move is chess-valid i.e. doesn't move a pinned piece; doesn't move out of check; */
 				/* Checking valid move goes in Utils. Players actually make the move. */
 				/* Actually make the move. */
-				white.makeMove(_board);
+				white.makeMove(propose, _board);
 			}
 		}
 	}

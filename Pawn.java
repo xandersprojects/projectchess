@@ -10,22 +10,29 @@ public class Pawn extends Piece {
 		super();
 		if (color == 1) {
 			this.setTextRepr("P");
+			int[] possibles = {16, 32, 15, 17};
+			this.setPossibles(possibles);
 		} else {
 			this.setTextRepr("p");
+			int[] possibles = {-16, -32, -15, -17};
+			this.setPossibles(possibles);
 		}
 		this.setSliding(true);
 		this.setPieceCode(1);
 		this.setColor(color);
 		_moved = false;
-		if (color == 1) {
-			int[] possibles = {16, 32, 15, 17};
-			this.setPossibles(possibles);
-		} else { /* Pawns move the other way if of color black */
-			int[] possibles = {-16, -32, -15, -17};
-			this.setPossibles(possibles);
-		}
 		this.setValue(1.0);
 		this.setPosition(position);
+	}
+
+	static int[] whitePawnPossible() {
+		int[] white = {16, 32, 15, 17};
+		return white;
+	}
+
+	static int[] blackPawnPossible() {
+		int[] black = {-16, -32, -15, -17};
+		return black;
 	}
 
 

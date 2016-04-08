@@ -13,6 +13,22 @@ public class Move {
 		_str = str;
 	}
 
+	Piece getPiece() {
+		return _piece;
+	}
+
+	int getStart() {
+		return _start;
+	}
+
+	int getDest() {
+		return _dest;
+	}
+
+	String getStr() {
+		return _str;
+	}
+
 	/** Piece involved in this move. */
 	private Piece _piece;
 	/** Start square of this move. */
