@@ -6,11 +6,12 @@ import java.lang.NumberFormatException;
 
 public class Move {
 
-	Move(Piece piece, int start, int dest, String str) {
+	Move(Piece piece, int start, int dest, String str, Piece promo) {
 		_piece = piece;
 		_start = start;
 		_dest = dest;
 		_str = str;
+		_promo = promo;
 	}
 
 	Piece getPiece() {
@@ -29,6 +30,10 @@ public class Move {
 		return _str;
 	}
 
+	Piece getPromo() {
+		return _promo;
+	}
+
 	/** Piece involved in this move. */
 	private Piece _piece;
 	/** Start square of this move. */
@@ -37,5 +42,7 @@ public class Move {
 	private int _dest;
 	/** String representation of this move. */
 	private String _str;
+	/** String indicating promotion */
+	private Piece _promo;
 }
 

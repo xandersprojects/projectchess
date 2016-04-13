@@ -54,8 +54,8 @@ public class Board {
 		_board[5].putPiece(f1);
 		Bishop c8 = new Bishop(114, 0);
 		_board[114].putPiece(c8);
-		Bishop f8 = new Bishop(117, 0);
-		_board[117].putPiece(f8);
+		// Bishop f8 = new Bishop(117, 0);
+		// _board[117].putPiece(f8);
 		/* Place the queens */
 		Queen d1 = new Queen(3, 1);
 		_board[3].putPiece(d1);
@@ -93,8 +93,8 @@ public class Board {
 		_board[99].putPiece(d7);
 		Pawn e7 = new Pawn(100, 0);
 		_board[100].putPiece(e7);
-		Pawn f7 = new Pawn(101, 0);
-		_board[101].putPiece(f7);
+		// Pawn f7 = new Pawn(101, 0);
+		// _board[101].putPiece(f7);
 		Pawn g7 = new Pawn(102, 0);
 		_board[102].putPiece(g7);
 		Pawn h7 = new Pawn(103, 0);

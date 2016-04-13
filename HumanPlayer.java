@@ -52,8 +52,12 @@ public class HumanPlayer extends Player {
 	void makeMove(Move move, Board board) {
 		/* Piece in question */
 		Piece moving = move.getPiece();
-		/* Place piece on destination square */
-		board.getSquares()[move.getDest()].putPiece(moving);
+		/* Handle promotion case */
+		if (move.getPromo() != null) {
+			board.getSquares()[move.getDest()].putPiece(move.getPromo());
+		} else { /* Place original piece on destination square */
+			board.getSquares()[move.getDest()].putPiece(moving);
+		}
 		/* Clear piece on the start square */
 		board.getSquares()[move.getStart()].clear();
 		/* Print out the move made. */
