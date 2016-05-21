@@ -21,4 +21,10 @@ public class Queen extends Piece {
 		this.setValue(9.0);
 		this.setPosition(position);
 	}
+
+	static int[] bases() {
+		int[] base = {16, 17, 1, -15, -16, -17, -1, 15};
+		return base;
+	}
+	
 }

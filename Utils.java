@@ -6,6 +6,13 @@ import java.lang.ArrayIndexOutOfBoundsException;
 
 class Utils {
 
+	/** Given the index of a square on the board, returns whether or
+	  * not it is in the board or not. */
+	public static boolean inBounds(int sqNum) {
+		System.out.println(sqNum);
+		return (((sqNum & 8) == 0) && sqNum > 0 && sqNum < 128);
+	}
+
 	/** Given a square name as a string (e.g. e4), convert it to its
 	  * indexed location on a 1D length 128 array. */
 	public static int decodeSquare(String sq) {
@@ -72,8 +79,98 @@ class Utils {
 						   String capt, String targCast, String targ, String kCast,
 						   String qCast, String promo, String checkM, String full, Board board,
 						   int color) {
+		Square[] all = board.getSquares();
 		Move ret;
 		if (pQualp != null) { /* If a piece is moving, or a pawn is making a capture */
+			/* Deal with pawn captures here */
+			if (pQual.length() == 1) { /* Dealing with a piece with no qualifier */
+				int[] deltas = null;
+				String found = null;
+				switch (pQual) {
+					case "Q":
+						deltas = Queen.bases();
+						if (color == 1) {
+							found = "Q";
+						} else {
+							found = "q";
+						}
+						break;
+					case "K":
+						deltas = King.bases();
+						if (color == 1) {
+							found = "K";
+						} else {
+							found = "k";
+						}
+						break;
+					case "R":
+						deltas = Rook.bases();
+						if (color == 1) {
+							found = "R";
+						} else {
+							found = "r";
+						}
+						break;
+					case "N":
+						deltas = Knight.bases();
+						if (color == 1) {
+							found = "N";
+						} else {
+							found = "n";
+						}
+						break;
+					case "B":
+						deltas = Bishop.bases();
+						if (color == 1) {
+							found = "B";
+						} else {
+							found = "b";
+						}
+						break;
+					default:
+						System.out.println("That piece does not exist.");
+						break;
+				}
+				if (deltas == null) {
+					return null;
+				}
+				if (targ != null) {
+					int dest = decodeSquare(targ);
+					int sqFound = -1;
+					if (!all[dest].isEmpty() && all[dest].getPiece().getColor() == color) {
+						return null;
+					}
+					/** Handle the Knight case separately */
+
+					/** For Sliding Pieces only */
+					for (int i = 0; i < deltas.length; i++) {
+						System.out.println(deltas[i]);
+						int deltaCurr = deltas[i];
+						int test = dest + deltaCurr;
+						while (inBounds(test)) {
+							Piece trying = all[test].getPiece();
+							if (trying != null) {
+								if (trying.getTextRepr().compareTo(found) == 0) {
+									if (sqFound != -1 && sqFound != test) {
+										System.out.println("There is more than one piece that can maneuver here. Please specify.");
+										return null;
+									} else {
+										System.out.println("reached");
+										sqFound = test;
+									}
+								}
+							}
+							test += deltaCurr;
+						}
+					}
+					if (sqFound == -1) {
+						System.out.println("Hmm. This move doesn't seem possible. Try again.");
+						return null;
+					}
+					Piece involved = all[sqFound].getPiece();
+					return new Move(involved, sqFound, dest, full, null);
+				}
+			}
 
 		} else { /* If we are dealing with an ordinary pawn move, or castling */
 			/* Look at targ. If contains something, then this is a pawn move. */
@@ -114,7 +211,7 @@ class Utils {
 					/* If the square is not empty, look in it. */
 					try {
 						if (!board.getSquares()[trySquare].isEmpty()) {
-							Piece found = board.getSquares()[trySquare].getPiece();
+							Piece found = all[trySquare].getPiece();
 							/* A piece is found. Check if it is a same color pawn as the player */
 							if (found.getPieceCode() == 1 && color == found.getColor()) {
 								/* If so, we have found the target pawn. */
@@ -167,11 +264,7 @@ class Utils {
 				ret = new Move(pawnPiece, foundStart, dest, full, null);
 				return ret;
 			}
-				
-				/* Go into the Pawn object and find the starting square. */
-				/* Check to see if target square contains 8 -- if so, expect a promotion. */
-				/* Check promo string to get promotion information. */
-				/* Create the correct move. */
+
 			/* Look at kCast. If contains something, this is a kingside castling move. */
 
 		}

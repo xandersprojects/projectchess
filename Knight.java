@@ -22,4 +22,9 @@ public class Knight extends Piece {
 		this.setPosition(position);
 	}
 
+	static int[] bases() {
+		int[] base = {33, 18, -14, -31, -33, -18, 14, 31};
+		return base;
+	}
+
 }

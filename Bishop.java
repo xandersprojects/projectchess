@@ -22,4 +22,9 @@ public class Bishop extends Piece {
 		this.setPosition(position);
 	}
 
+	static int[] bases() {
+		int[] base = {17, -15, -17, 15};
+		return base;
+	}
+
 }

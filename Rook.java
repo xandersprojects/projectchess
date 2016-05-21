@@ -22,4 +22,9 @@ public class Rook extends Piece {
 		this.setPosition(position);
 	}
 
+	static int[] bases() {
+		int[] base = {16, 1, -16, -1};
+		return base;
+	}
+
 }
