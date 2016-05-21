@@ -141,26 +141,45 @@ class Utils {
 						return null;
 					}
 					/** Handle the Knight case separately */
-
-					/** For Sliding Pieces only */
-					for (int i = 0; i < deltas.length; i++) {
-						System.out.println(deltas[i]);
-						int deltaCurr = deltas[i];
-						int test = dest + deltaCurr;
-						while (inBounds(test)) {
+					if (found.compareTo("N") == 0|| found.compareTo("n") == 0) {
+						for (int i = 0; i < deltas.length; i++) {
+							int deltaCurr = deltas[i];
+							int test = dest + deltaCurr;
+							if (!inBounds(test)) {
+								continue;
+							}
 							Piece trying = all[test].getPiece();
 							if (trying != null) {
 								if (trying.getTextRepr().compareTo(found) == 0) {
 									if (sqFound != -1 && sqFound != test) {
-										System.out.println("There is more than one piece that can maneuver here. Please specify.");
+										System.out.println("There is more than one knight that can maneuver here. Please specify.");
 										return null;
 									} else {
-										System.out.println("reached");
+										System.out.println("Reached");
 										sqFound = test;
 									}
 								}
 							}
-							test += deltaCurr;
+						}
+					} else { /* Handle sliding pieces */
+						for (int i = 0; i < deltas.length; i++) {
+							int deltaCurr = deltas[i];
+							int test = dest + deltaCurr;
+							while (inBounds(test)) {
+								Piece trying = all[test].getPiece();
+								if (trying != null) {
+									if (trying.getTextRepr().compareTo(found) == 0) {
+										if (sqFound != -1 && sqFound != test) {
+											System.out.println("There is more than one piece that can maneuver here. Please specify.");
+											return null;
+										} else {
+											System.out.println("reached");
+											sqFound = test;
+										}
+									}
+								}
+								test += deltaCurr;
+							}
 						}
 					}
 					if (sqFound == -1) {
