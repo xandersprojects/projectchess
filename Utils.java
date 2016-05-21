@@ -10,7 +10,7 @@ class Utils {
 	  * not it is in the board or not. */
 	public static boolean inBounds(int sqNum) {
 		System.out.println(sqNum);
-		return (((sqNum & 8) == 0) && sqNum > 0 && sqNum < 128);
+		return (((sqNum & 8) == 0) && sqNum >= 0 && sqNum < 128);
 	}
 
 	/** Given a square name as a string (e.g. e4), convert it to its
@@ -140,8 +140,9 @@ class Utils {
 					if (!all[dest].isEmpty() && all[dest].getPiece().getColor() == color) {
 						return null;
 					}
-					/** Handle the Knight case separately */
-					if (found.compareTo("N") == 0|| found.compareTo("n") == 0) {
+					/** Handle the Knight and King case separately */
+					if (found.compareTo("N") == 0 || found.compareTo("n") == 0 ||
+						found.compareTo("K") == 0 || found.compareTo("k") == 0) {
 						for (int i = 0; i < deltas.length; i++) {
 							int deltaCurr = deltas[i];
 							int test = dest + deltaCurr;
@@ -176,6 +177,8 @@ class Utils {
 											System.out.println("reached");
 											sqFound = test;
 										}
+									} else {
+										break;
 									}
 								}
 								test += deltaCurr;
