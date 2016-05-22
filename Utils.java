@@ -83,116 +83,145 @@ class Utils {
 		Move ret;
 		if (pQualp != null) { /* If a piece is moving, or a pawn is making a capture */
 			/* Deal with pawn captures here */
-			if (pQual.length() == 1) { /* Dealing with a piece with no qualifier */
-				int[] deltas = null;
-				String found = null;
-				switch (pQual) {
-					case "Q":
-						deltas = Queen.bases();
-						if (color == 1) {
-							found = "Q";
-						} else {
-							found = "q";
-						}
-						break;
-					case "K":
-						deltas = King.bases();
-						if (color == 1) {
-							found = "K";
-						} else {
-							found = "k";
-						}
-						break;
-					case "R":
-						deltas = Rook.bases();
-						if (color == 1) {
-							found = "R";
-						} else {
-							found = "r";
-						}
-						break;
-					case "N":
-						deltas = Knight.bases();
-						if (color == 1) {
-							found = "N";
-						} else {
-							found = "n";
-						}
-						break;
-					case "B":
-						deltas = Bishop.bases();
-						if (color == 1) {
-							found = "B";
-						} else {
-							found = "b";
-						}
-						break;
-					default:
-						System.out.println("That piece does not exist.");
-						break;
-				}
-				if (deltas == null) {
-					return null;
-				}
-				if (targ != null) {
-					int dest = decodeSquare(targ);
-					int sqFound = -1;
-					if (!all[dest].isEmpty() && all[dest].getPiece().getColor() == color) {
-						return null;
+
+			/* Deal with regular piece moves. */
+			int[] deltas = null;
+			String found = null;
+			switch (Character.toString(pQual.charAt(0))) {
+				case "Q":
+					deltas = Queen.bases();
+					if (color == 1) {
+						found = "Q";
+					} else {
+						found = "q";
 					}
-					/** Handle the Knight and King case separately */
-					if (found.compareTo("N") == 0 || found.compareTo("n") == 0 ||
-						found.compareTo("K") == 0 || found.compareTo("k") == 0) {
-						for (int i = 0; i < deltas.length; i++) {
-							int deltaCurr = deltas[i];
-							int test = dest + deltaCurr;
-							if (!inBounds(test)) {
-								continue;
-							}
-							Piece trying = all[test].getPiece();
-							if (trying != null) {
-								if (trying.getTextRepr().compareTo(found) == 0) {
-									if (sqFound != -1 && sqFound != test) {
-										System.out.println("There is more than one knight that can maneuver here. Please specify.");
-										return null;
-									} else {
-										System.out.println("Reached");
-										sqFound = test;
-									}
-								}
-							}
-						}
-					} else { /* Handle sliding pieces */
-						for (int i = 0; i < deltas.length; i++) {
-							int deltaCurr = deltas[i];
-							int test = dest + deltaCurr;
-							while (inBounds(test)) {
-								Piece trying = all[test].getPiece();
-								if (trying != null) {
-									if (trying.getTextRepr().compareTo(found) == 0) {
-										if (sqFound != -1 && sqFound != test) {
-											System.out.println("There is more than one piece that can maneuver here. Please specify.");
-											return null;
-										} else {
-											System.out.println("reached");
+					break;
+				case "K":
+					deltas = King.bases();
+					if (color == 1) {
+						found = "K";
+					} else {
+						found = "k";
+					}
+					break;
+				case "R":
+					deltas = Rook.bases();
+					if (color == 1) {
+						found = "R";
+					} else {
+						found = "r";
+					}
+					break;
+				case "N":
+					deltas = Knight.bases();
+					if (color == 1) {
+						found = "N";
+					} else {
+						found = "n";
+					}
+					break;
+				case "B":
+					deltas = Bishop.bases();
+					if (color == 1) {
+						found = "B";
+					} else {
+						found = "b";
+					}
+					break;
+				default:
+					System.out.println("That piece does not exist.");
+					break;
+			}
+			if (deltas == null) {
+				return null;
+			}
+			int dest = decodeSquare(targ);
+			int sqFound = -1;
+			if (!all[dest].isEmpty() && all[dest].getPiece().getColor() == color) {
+				return null;
+			}
+			/** Handle the Knight and King case separately */
+			if (found.compareTo("N") == 0 || found.compareTo("n") == 0 ||
+				found.compareTo("K") == 0 || found.compareTo("k") == 0) {
+
+				for (int i = 0; i < deltas.length; i++) {
+					int deltaCurr = deltas[i];
+					int test = dest + deltaCurr;
+					if (!inBounds(test)) {
+						continue;
+					}
+					Piece trying = all[test].getPiece();
+					if (trying != null) {
+						if (trying.getTextRepr().compareTo(found) == 0) {
+							if (sqFound != -1 && sqFound != test) {
+								if (pQual.length() == 1) {
+									System.out.println("There is more than one knight that can maneuver here. Please specify.");
+									return null;
+								} else if (pQual.length() == 2) {
+									char character = pQual.charAt(1);
+									if (Character.isDigit(character)) {
+										int rank = Character.getNumericValue(character) - 1;
+										int testVal = test / 16;
+										if (rank == testVal) {
+											if (sqFound / 16 == rank) {
+												System.out.println("There is more than one knight that can maneuver here. Please specify.");
+												return null;
+											}											
 											sqFound = test;
 										}
 									} else {
-										break;
+										int qualifier = character;
+										qualifier -= 97;
+										int testVal = test % 16;
+										if (qualifier == testVal) {
+											if (sqFound % 16 == qualifier) {
+												System.out.println("There is more than one knight that can maneuver here. Please specify.");
+												return null;
+											}
+											sqFound = test;
+										}
+									}
+								} else if (pQual.length() == 3) {
+									String qualifier = pQual.substring(1, 3);
+									int qualifNum = decodeSquare(qualifier);
+									if (qualifNum == test) {
+										sqFound = test;
 									}
 								}
-								test += deltaCurr;
+							} else {
+								sqFound = test;
 							}
 						}
 					}
-					if (sqFound == -1) {
-						System.out.println("Hmm. This move doesn't seem possible. Try again.");
-						return null;
+				}
+			} else { /* Handle sliding pieces */
+				for (int i = 0; i < deltas.length; i++) {
+					int deltaCurr = deltas[i];
+					int test = dest + deltaCurr;
+					while (inBounds(test)) {
+						Piece trying = all[test].getPiece();
+						if (trying != null) {
+							if (trying.getTextRepr().compareTo(found) == 0) {
+								if (sqFound != -1 && sqFound != test) {
+									System.out.println("There is more than one piece that can maneuver here. Please specify.");
+									return null;
+								} else {
+									sqFound = test;
+								}
+							} else {
+								break;
+							}
+						}
+						test += deltaCurr;
 					}
-					Piece involved = all[sqFound].getPiece();
-					return new Move(involved, sqFound, dest, full, null);
 				}
 			}
+			if (sqFound == -1) {
+				System.out.println("Hmm. This move doesn't seem possible. Try again.");
+				return null;
+			}
+			Piece involved = all[sqFound].getPiece();
+			return new Move(involved, sqFound, dest, full, null);
 
 		} else { /* If we are dealing with an ordinary pawn move, or castling */
 			/* Look at targ. If contains something, then this is a pawn move. */

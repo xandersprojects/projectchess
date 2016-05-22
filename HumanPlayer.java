@@ -16,7 +16,7 @@ public class HumanPlayer extends Player {
 
 	/** User inputted proposed move to make. */
 	public Move proposeMove(Board board, String move) {
-		String pattern = "^(([RNBQK]{1}([a-h]|[1-8])?)|([a-h]))?([x])?(([a-h]+[1-8])|(0-0)|(0-0-0))([=][RNBQ])?([+]|[#])?$";
+		String pattern = "^(([RNBQK]{1}([a-h]+[1-8]|[a-h]|[1-8])?)|([a-h]))?([x])?(([a-h]+[1-8])|(0-0)|(0-0-0))([=][RNBQ])?([+]|[#])?$";
 		Pattern anyMove = Pattern.compile(pattern);
 		Matcher m = anyMove.matcher(move);
 		Move propose = null;
