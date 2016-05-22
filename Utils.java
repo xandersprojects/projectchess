@@ -203,10 +203,78 @@ class Utils {
 						if (trying != null) {
 							if (trying.getTextRepr().compareTo(found) == 0) {
 								if (sqFound != -1 && sqFound != test) {
-									System.out.println("There is more than one piece that can maneuver here. Please specify.");
-									return null;
+									if (pQual.length() == 1) {
+										System.out.println("There is more than one piece that can maneuver here. Please specify.");
+										return null;
+									} else if (pQual.length() == 2) {
+										char character = pQual.charAt(1);
+										if (Character.isDigit(character)) {
+											int rank = Character.getNumericValue(character) - 1;
+											int testVal = test / 16;
+											if (rank == testVal) {
+												if (sqFound / 16 == rank) {
+													System.out.println("There is more than one piece that can maneuver here. Please specify.");
+													return null;
+												}											
+												sqFound = test;
+												break;
+											}
+										} else {
+											int qualifier = character;
+											qualifier -= 97;
+											int testVal = test % 16;
+											if (qualifier == testVal) {
+												if (sqFound % 16 == qualifier) {
+													System.out.println("There is more than one piece that can maneuver here. Please specify.");
+													return null;
+												}
+												sqFound = test;
+												break;
+											}
+										}
+									} else if (pQual.length() == 3) {
+										String qualifier = pQual.substring(1, 3);
+										int qualifNum = decodeSquare(qualifier);
+										if (qualifNum == test) {
+											sqFound = test;
+											break;
+										}
+									}
 								} else {
-									sqFound = test;
+									if (pQual.length() == 1) {
+										sqFound = test;
+										break;
+									} else if (pQual.length() == 2) {
+										char character = pQual.charAt(1);
+										if (Character.isDigit(character)) {
+											int rank = Character.getNumericValue(character) - 1;
+											int testVal = test / 16;
+											if (testVal != rank) {
+												break;											
+											} else {
+												sqFound = test;
+												break;
+											}
+										} else {
+											int qualifier = character;
+											qualifier -= 97;
+											int testVal = test % 16;
+											if (qualifier != testVal) {
+												break;												
+											} else {
+												sqFound = test;
+												break;												
+											}
+										}
+									} else if (pQual.length() == 3) {
+										String qualifier = pQual.substring(1, 3);
+										int qualifNum = decodeSquare(qualifier);
+										if (qualifNum == test) {
+											sqFound = test;
+											break;
+										}
+									}
+
 								}
 							} else {
 								break;
