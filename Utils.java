@@ -1,4 +1,5 @@
 import java.lang.ArrayIndexOutOfBoundsException;
+import java.util.Scanner;
 
 /**
  * Various utility functions for the chess program.
@@ -9,7 +10,6 @@ class Utils {
 	/** Given the index of a square on the board, returns whether or
 	  * not it is in the board or not. */
 	public static boolean inBounds(int sqNum) {
-		System.out.println(sqNum);
 		return (((sqNum & 8) == 0) && sqNum >= 0 && sqNum < 128);
 	}
 
@@ -139,6 +139,21 @@ class Utils {
 			int sqFound = -1;
 			if (!all[dest].isEmpty() && all[dest].getPiece().getColor() == color) {
 				return null;
+			}
+			if (capt != null && all[dest].isEmpty()) {
+				Scanner scan = new Scanner(System.in);
+				System.out.println("This move does not involve a capture. Play " + pQualp + targ + "? (Y/N)");
+				String trying = scan.next();
+				if (trying.compareTo("Y") == 0 || trying.compareTo("y") == 0 || trying.compareTo("Yes") == 0 || trying.compareTo("yes") == 0) {
+					return regex_translate(pQualp, pQual, qual, pawn, null, targCast, targ, kCast,
+						qCast, promo, checkM, pQualp + targ, board, color);
+				} else if (trying.compareTo("N") == 0 || trying.compareTo("n") == 0 || trying.compareTo("No") == 0 || trying.compareTo("no") == 0) {
+					System.out.println("Cancelling previous move request");
+					return null;
+				} else {
+					System.out.println("Did not understand your response. Cancelling.");
+					return null;
+				}
 			}
 			/** Handle the Knight and King case separately */
 			if (found.compareTo("N") == 0 || found.compareTo("n") == 0 ||
@@ -355,7 +370,6 @@ class Utils {
 						return null;
 					}
 					String newStr = Character.toString(promo.charAt(1));
-					System.out.println(newStr);
 					Piece newPiece = null;
 					switch (newStr) {
 						case "Q":
