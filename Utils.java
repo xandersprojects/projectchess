@@ -204,7 +204,36 @@ class Utils {
 									}
 								}
 							} else {
-								sqFound = test;
+								if (pQual.length() == 1) {
+									System.out.println("a");
+									sqFound = test;
+								} else if (pQual.length() == 2) {
+									char character = pQual.charAt(1);
+									if (Character.isDigit(character)) {
+										int rank = Character.getNumericValue(character) - 1;
+										int testVal = test / 16;
+										if (testVal != rank) {
+											continue;
+										} else {
+											sqFound = test;
+										}
+									} else {
+										int qualifier = character;
+										qualifier -= 97;
+										int testVal = test % 16;
+										if (qualifier != testVal) {
+											continue;
+										} else {
+											sqFound = test;
+										}
+									}
+								} else if (pQual.length() == 3) {
+									String qualifier = pQual.substring(1, 3);
+									int qualifNum = decodeSquare(qualifier);
+									if (qualifNum == test) {
+										sqFound = test;
+									}
+								}
 							}
 						}
 					}
@@ -289,7 +318,6 @@ class Utils {
 											break;
 										}
 									}
-
 								}
 							} else {
 								break;
@@ -304,7 +332,7 @@ class Utils {
 				return null;
 			}
 			Piece involved = all[sqFound].getPiece();
-			return new Move(involved, sqFound, dest, full, null);
+			return new Move(involved, sqFound, dest, full, null, false, false);
 
 		} else { /* If we are dealing with an ordinary pawn move, or castling */
 			/* Look at targ. If contains something, then this is a pawn move. */
@@ -316,12 +344,27 @@ class Utils {
 					return null;
 				}
 				int n;
+				boolean twoSpaces = false;
 				/* If the target square is the fourth rank, pawn could possibly move two spaces */
 				if (((Character.toString(targ.charAt(1))).compareTo("4") == 0 && color == 1) ||
 					(Character.toString(targ.charAt(1))).compareTo("5") == 0 && color == 0) {
 					n = 2;
+					twoSpaces = true;
 				} else {
 					n = 1;
+				}
+				if (twoSpaces && color == 1) {
+					int testSq = dest - 16;
+					if (!all[testSq].isEmpty() && all[testSq].getPiece().getTextRepr() != "P") {
+						System.out.println("There is another piece in the way.");
+						return null;
+					}
+				} else if (twoSpaces && color == 0) {
+					int testSq = dest + 16;
+					if (!all[testSq].isEmpty() && all[testSq].getPiece().getTextRepr() != "p") {
+						System.out.println("There is another piece in the way.");
+						return null;
+					}
 				}
 				/* Creating the possible pawn movement array */
 				int[] pawnForwards = new int[n];
@@ -391,14 +434,22 @@ class Utils {
 					if (newPiece == null) {
 						return null;
 					}
-					return new Move(pawnPiece, foundStart, dest, full, newPiece);
+					return new Move(pawnPiece, foundStart, dest, full, newPiece, false, false);
 				}
 
-				ret = new Move(pawnPiece, foundStart, dest, full, null);
+				ret = new Move(pawnPiece, foundStart, dest, full, null, false, false);
 				return ret;
+			} else if (kCast != null) {
+				/* Look at kCast. If contains something, this is a kingside castling move. */
+				/* Find the king */
+				/* Ensure the king hasn't moved yet */
+				/* Ensure the two squares to the right of the king are vacated. */
+				/* Find the rook. */
+				/* Ensure the rook hasn't moved yet. */
+				/* Carry out castling. */
 			}
 
-			/* Look at kCast. If contains something, this is a kingside castling move. */
+			
 
 		}
 		return null;
