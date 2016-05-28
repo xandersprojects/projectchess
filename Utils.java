@@ -441,16 +441,123 @@ class Utils {
 				return ret;
 			} else if (kCast != null) {
 				/* Look at kCast. If contains something, this is a kingside castling move. */
-				/* Find the king */
-				/* Ensure the king hasn't moved yet */
-				/* Ensure the two squares to the right of the king are vacated. */
-				/* Find the rook. */
-				/* Ensure the rook hasn't moved yet. */
-				/* Carry out castling. */
+				if (color == 1) {
+					if (all[4].isEmpty()) {
+						return null;
+					}
+					/* Find the king */
+					if (all[4].getPiece().getTextRepr() != "K") {
+						return null;
+					}
+					King king = (King) all[4].getPiece();
+					/* Ensure the king hasn't moved yet */
+					if (king.hasMoved()) {
+						return null;
+					}
+					/* Ensure the two squares to the right of the king are vacated. */
+					if (!all[5].isEmpty() || !all[6].isEmpty()) {
+						return null;
+					}
+					/* Find the rook. */
+					if (all[7].getPiece().getTextRepr() != "R") {
+						return null;
+					}
+					Rook rook = (Rook) all[7].getPiece();
+					/* Ensure the rook hasn't moved yet. */
+					if (rook.hasMoved()) {
+						return null;
+					}
+					/* Return the castling move. Castling will be handled by the player. */
+					return new Move(king, 4, 6, full, null, true, false);
+				} else {
+					if (all[116].isEmpty()) {
+						return null;
+					}
+					/* Find the king */
+					if (all[116].getPiece().getTextRepr() != "k") {
+						return null;
+					}
+					King king = (King) all[116].getPiece();
+					/* Ensure the king hasn't moved yet */
+					if (king.hasMoved()) {
+						return null;
+					}
+					/* Ensure the two squares to the right of the king are vacated. */
+					if (!all[117].isEmpty() || !all[118].isEmpty()) {
+						return null;
+					}
+					/* Find the rook. */
+					if (all[119].getPiece().getTextRepr() != "r") {
+						return null;
+					}
+					Rook rook = (Rook) all[119].getPiece();
+					/* Ensure the rook hasn't moved yet. */
+					if (rook.hasMoved()) {
+						return null;
+					}
+					/* Return the castling move. Castling will be handled by the player. */
+					return new Move(king, 116, 118, full, null, true, false);
+				}
+			} else if (qCast != null) {
+				/* Look at qCast. If contains something, this is a queenside castling move. */
+				if (color == 1) {
+					if (all[4].isEmpty()) {
+						return null;
+					}
+					/* Find the king */
+					if (all[4].getPiece().getTextRepr() != "K") {
+						return null;
+					}
+					King king = (King) all[4].getPiece();
+					/* Ensure the king hasn't moved yet */
+					if (king.hasMoved()) {
+						return null;
+					}
+					/* Ensure the three squares to the left of the king are vacated. */
+					if (!all[1].isEmpty() || !all[2].isEmpty() || !all[3].isEmpty()) {
+						return null;
+					}
+					/* Find the rook. */
+					if (all[0].getPiece().getTextRepr() != "R") {
+						return null;
+					}
+					Rook rook = (Rook) all[0].getPiece();
+					/* Ensure the rook hasn't moved yet. */
+					if (rook.hasMoved()) {
+						return null;
+					}
+					/* Return the castling move. Castling will be handled by the player. */
+					return new Move(king, 4, 2, full, null, false, true);
+				} else {
+					if (all[116].isEmpty()) {
+						return null;
+					}
+					/* Find the king */
+					if (all[116].getPiece().getTextRepr() != "k") {
+						return null;
+					}
+					King king = (King) all[116].getPiece();
+					/* Ensure the king hasn't moved yet */
+					if (king.hasMoved()) {
+						return null;
+					}
+					/* Ensure the three squares to the left of the king are vacated. */
+					if (!all[113].isEmpty() || !all[114].isEmpty() || !all[115].isEmpty()) {
+						return null;
+					}
+					/* Find the rook. */
+					if (all[112].getPiece().getTextRepr() != "r") {
+						return null;
+					}
+					Rook rook = (Rook) all[112].getPiece();
+					/* Ensure the rook hasn't moved yet. */
+					if (rook.hasMoved()) {
+						return null;
+					}
+					/* Return the castling move. Castling will be handled by the player. */
+					return new Move(king, 116, 114, full, null, false, true);
+				}
 			}
-
-			
-
 		}
 		return null;
 	}

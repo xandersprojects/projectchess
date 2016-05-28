@@ -50,16 +50,41 @@ public class HumanPlayer extends Player {
 
 	/** Makes a move on BOARD. */
 	void makeMove(Move move, Board board) {
+
+		Square[] all = board.getSquares();
+
 		/* Piece in question */
 		Piece moving = move.getPiece();
+
+		/* Special if cases for castling */
+		if (move.getKCast()) {
+			/* The king should be contained within the move. */
+			/* The rook is found separately here. */
+			Rook rook = (Rook) board.getSquares()[move.getDest() + 1].getPiece();
+			all[move.getDest()].putPiece(moving);
+			all[move.getDest() - 1].putPiece(rook);
+			all[move.getStart()].clear();
+			all[move.getDest() + 1].clear();
+			System.out.println(move.getStr());
+			return;
+		} else if (move.getQCast()) {
+			Rook rook = (Rook) board.getSquares()[move.getDest() - 2].getPiece();
+			all[move.getDest()].putPiece(moving);
+			all[move.getDest() + 1].putPiece(rook);
+			all[move.getStart()].clear();
+			all[move.getDest() - 2].clear();
+			System.out.println(move.getStr());
+			return;
+		}
+
 		/* Handle promotion case */
 		if (move.getPromo() != null) {
-			board.getSquares()[move.getDest()].putPiece(move.getPromo());
+			all[move.getDest()].putPiece(move.getPromo());
 		} else { /* Place original piece on destination square */
-			board.getSquares()[move.getDest()].putPiece(moving);
+			all[move.getDest()].putPiece(moving);
 		}
 		/* Clear piece on the start square */
-		board.getSquares()[move.getStart()].clear();
+		all[move.getStart()].clear();
 		/* Print out the move made. */
 		System.out.println(move.getStr());
 	}
