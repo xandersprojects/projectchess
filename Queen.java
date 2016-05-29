@@ -20,6 +20,7 @@ public class Queen extends Piece {
 		this.setPossibles(possibles);
 		this.setValue(9.0);
 		this.setPosition(position);
+		this.notMoved();
 	}
 
 	static int[] bases() {

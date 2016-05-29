@@ -20,6 +20,7 @@ public class Bishop extends Piece {
 		this.setPossibles(possibles);
 		this.setValue(3.0);
 		this.setPosition(position);
+		this.notMoved();
 	}
 
 	static int[] bases() {

@@ -23,6 +23,7 @@ public class Pawn extends Piece {
 		_moved = false;
 		this.setValue(1.0);
 		this.setPosition(position);
+		this.notMoved();
 	}
 
 	static int[] whitePawnPossible() {

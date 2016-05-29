@@ -55,6 +55,8 @@ public class HumanPlayer extends Player {
 
 		/* Piece in question */
 		Piece moving = move.getPiece();
+		
+		moving.nowMoved();
 
 		/* Special if cases for castling */
 		if (move.getKCast()) {

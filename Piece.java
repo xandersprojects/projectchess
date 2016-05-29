@@ -70,6 +70,21 @@ public abstract class Piece {
 		return _pieceCode;
 	}
 
+	/** Returns whether or not this piece has moved already. */
+	public boolean hasMoved() {
+		return _moved;
+	}
+
+	/** Sets moved to true after the piece has moved. */
+	public void nowMoved() {
+		_moved = true;
+	}
+
+	/** Sets moved to false upon initialization. */
+	public void notMoved() {
+		_moved = false;
+	}
+
 
 	/** The color of the piece. 1 if white, 0 if black. */
 	private int _color;
@@ -85,5 +100,6 @@ public abstract class Piece {
 	private int _position;
 	/** Code of the piece. P=1, R=2, N=3, B=4, Q=5, K=6 */
 	private int _pieceCode;
-
+	/** Indicates whether the piece has moved or not. */
+	private boolean _moved;
 }

@@ -20,25 +20,12 @@ public class King extends Piece {
 		this.setPossibles(possibles);
 		this.setValue(1000.0);
 		this.setPosition(position);
-		_moved = false;
-	}
-
-	/** Returns whether or not this king has moved already. */
-	public boolean hasMoved() {
-		return _moved;
-	}
-
-	/** Sets moved to true after the king has moved. */
-	public void nowMoved() {
-		_moved = true;
+		this.notMoved();
 	}
 
 	static int[] bases() {
 		int[] base = {16, 17, 1, -15, -16, -17, -1, 15};
 		return base;
 	}
-
-	/** Indicates whether the king has moved or not. */
-	private boolean _moved;
 
 }
