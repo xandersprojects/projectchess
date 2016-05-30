@@ -1,5 +1,6 @@
 import java.lang.ArrayIndexOutOfBoundsException;
 import java.util.Scanner;
+import java.util.Arrays;
 
 /**
  * Various utility functions for the chess program.
@@ -83,172 +84,165 @@ class Utils {
 		Move ret;
 		if (pQualp != null) { /* If a piece is moving, or a pawn is making a capture */
 			/* Deal with pawn captures here */
-
-			/* Deal with regular piece moves. */
-			int[] deltas = null;
-			String found = null;
-			switch (Character.toString(pQual.charAt(0))) {
-				case "Q":
-					deltas = Queen.bases();
-					if (color == 1) {
-						found = "Q";
-					} else {
-						found = "q";
-					}
-					break;
-				case "K":
-					deltas = King.bases();
-					if (color == 1) {
-						found = "K";
-					} else {
-						found = "k";
-					}
-					break;
-				case "R":
-					deltas = Rook.bases();
-					if (color == 1) {
-						found = "R";
-					} else {
-						found = "r";
-					}
-					break;
-				case "N":
-					deltas = Knight.bases();
-					if (color == 1) {
-						found = "N";
-					} else {
-						found = "n";
-					}
-					break;
-				case "B":
-					deltas = Bishop.bases();
-					if (color == 1) {
-						found = "B";
-					} else {
-						found = "b";
-					}
-					break;
-				default:
-					System.out.println("That piece does not exist.");
-					break;
-			}
-			if (deltas == null) {
-				return null;
-			}
-			int dest = decodeSquare(targ);
-			int sqFound = -1;
-			if (!all[dest].isEmpty() && all[dest].getPiece().getColor() == color) {
-				return null;
-			}
-			if (capt != null && all[dest].isEmpty()) {
-				Scanner scan = new Scanner(System.in);
-				System.out.println("This move does not involve a capture. Play " + pQualp + targ + "? (Y/N)");
-				String trying = scan.next();
-				if (trying.compareTo("Y") == 0 || trying.compareTo("y") == 0 || trying.compareTo("Yes") == 0 || trying.compareTo("yes") == 0) {
-					return regex_translate(pQualp, pQual, qual, pawn, null, targCast, targ, kCast,
-						qCast, promo, checkM, pQualp + targ, board, color);
-				} else if (trying.compareTo("N") == 0 || trying.compareTo("n") == 0 || trying.compareTo("No") == 0 || trying.compareTo("no") == 0) {
-					System.out.println("Cancelling previous move request");
-					return null;
-				} else {
-					System.out.println("Did not understand your response. Cancelling.");
+			if (pawn != null) {
+				int targSq = decodeSquare(targ);
+				if (all[targSq].isEmpty()) {
+					System.out.println("There is no target capture.");
 					return null;
 				}
-			}
-			/** Handle the Knight and King case separately */
-			if (found.compareTo("N") == 0 || found.compareTo("n") == 0 ||
-				found.compareTo("K") == 0 || found.compareTo("k") == 0) {
-
-				for (int i = 0; i < deltas.length; i++) {
-					int deltaCurr = deltas[i];
-					int test = dest + deltaCurr;
-					if (!inBounds(test)) {
+				Piece targCapt = all[targSq].getPiece();
+				if (color == targCapt.getColor()) {
+					System.out.println("Are you serious you want to capture your own piece?");
+					return null;
+				}
+				int[] pawnForwards;
+				if (color == 1) {
+					pawnForwards = Arrays.copyOfRange(Pawn.whitePawnPossible(), 2, 4);
+				} else {
+					pawnForwards = Arrays.copyOfRange(Pawn.blackPawnPossible(), 2, 4);
+				}
+				Pawn found = null;
+				char character = full.charAt(0);
+				int test = 0;
+				for (int i = 0; i < pawnForwards.length; i++) {
+					test = targSq - pawnForwards[i];
+					if (all[test].isEmpty()) {
 						continue;
-					}
-					Piece trying = all[test].getPiece();
-					if (trying != null) {
-						if (trying.getTextRepr().compareTo(found) == 0) {
-							if (sqFound != -1 && sqFound != test) {
-								if (pQual.length() == 1) {
-									System.out.println("There is more than one knight that can maneuver here. Please specify.");
-									return null;
-								} else if (pQual.length() == 2) {
-									char character = pQual.charAt(1);
-									if (Character.isDigit(character)) {
-										int rank = Character.getNumericValue(character) - 1;
-										int testVal = test / 16;
-										if (rank == testVal) {
-											if (sqFound / 16 == rank) {
-												System.out.println("There is more than one knight that can maneuver here. Please specify.");
-												return null;
-											}											
-											sqFound = test;
-										}
-									} else {
-										int qualifier = character;
-										qualifier -= 97;
-										int testVal = test % 16;
-										if (qualifier == testVal) {
-											if (sqFound % 16 == qualifier) {
-												System.out.println("There is more than one knight that can maneuver here. Please specify.");
-												return null;
-											}
-											sqFound = test;
-										}
-									}
-								} else if (pQual.length() == 3) {
-									String qualifier = pQual.substring(1, 3);
-									int qualifNum = decodeSquare(qualifier);
-									if (qualifNum == test) {
-										sqFound = test;
-									}
-								}
-							} else {
-								if (pQual.length() == 1) {
-									System.out.println("a");
-									sqFound = test;
-								} else if (pQual.length() == 2) {
-									char character = pQual.charAt(1);
-									if (Character.isDigit(character)) {
-										int rank = Character.getNumericValue(character) - 1;
-										int testVal = test / 16;
-										if (testVal != rank) {
-											continue;
-										} else {
-											sqFound = test;
-										}
-									} else {
-										int qualifier = character;
-										qualifier -= 97;
-										int testVal = test % 16;
-										if (qualifier != testVal) {
-											continue;
-										} else {
-											sqFound = test;
-										}
-									}
-								} else if (pQual.length() == 3) {
-									String qualifier = pQual.substring(1, 3);
-									int qualifNum = decodeSquare(qualifier);
-									if (qualifNum == test) {
-										sqFound = test;
-									}
-								}
-							}
+					} else if ((color == 1 && all[test].getPiece().getTextRepr().compareTo("P") == 0) ||
+							   (color == 0 && all[test].getPiece().getTextRepr().compareTo("p") == 0)) {
+						int foundFile = test % 16;
+						System.out.println(foundFile);
+						int supposed = (character - 97) % 16;
+						System.out.println(supposed);
+						if (foundFile == supposed) {
+							found = (Pawn) all[test].getPiece();
+							break;
 						}
 					}
 				}
-			} else { /* Handle sliding pieces */
-				for (int i = 0; i < deltas.length; i++) {
-					int deltaCurr = deltas[i];
-					int test = dest + deltaCurr;
-					while (inBounds(test)) {
+				if (found == null) {
+					System.out.println("No pawn can make this move.");
+					return null;
+				}
+				if (((Character.toString(targ.charAt(1))).compareTo("8") == 0 && color == 1) ||
+					(Character.toString(targ.charAt(1))).compareTo("1") == 0 && color == 0) {
+					if (promo == null) {
+						System.out.println("You must include promotion information.");
+						return null;
+					}
+					String newStr = Character.toString(promo.charAt(1));
+					Piece newPiece = null;
+					switch (newStr) {
+						case "Q":
+							newPiece = new Queen(targSq, color);
+							break;
+						case "N":
+							newPiece = new Knight(targSq, color);
+							break;
+						case "B":
+							newPiece = new Bishop(targSq, color);
+							break;
+						case "R":
+							newPiece = new Rook(targSq, color);
+							break;
+						default:
+							System.out.println("That is an invalid promotion piece.");
+							break;
+					}
+					if (newPiece == null) {
+						return null;
+					}
+					return new Move(found, test, targSq, full, newPiece, false, false);
+				}
+				return new Move(found, test, targSq, full, null, false, false);
+			} else {
+				/* Deal with regular piece moves. */
+				int[] deltas = null;
+				String found = null;
+				switch (Character.toString(pQual.charAt(0))) {
+					case "Q":
+						deltas = Queen.bases();
+						if (color == 1) {
+							found = "Q";
+						} else {
+							found = "q";
+						}
+						break;
+					case "K":
+						deltas = King.bases();
+						if (color == 1) {
+							found = "K";
+						} else {
+							found = "k";
+						}
+						break;
+					case "R":
+						deltas = Rook.bases();
+						if (color == 1) {
+							found = "R";
+						} else {
+							found = "r";
+						}
+						break;
+					case "N":
+						deltas = Knight.bases();
+						if (color == 1) {
+							found = "N";
+						} else {
+							found = "n";
+						}
+						break;
+					case "B":
+						deltas = Bishop.bases();
+						if (color == 1) {
+							found = "B";
+						} else {
+							found = "b";
+						}
+						break;
+					default:
+						System.out.println("That piece does not exist.");
+						break;
+				}
+				if (deltas == null) {
+					return null;
+				}
+				int dest = decodeSquare(targ);
+				int sqFound = -1;
+				if (!all[dest].isEmpty() && all[dest].getPiece().getColor() == color) {
+					return null;
+				}
+				if (capt != null && all[dest].isEmpty()) {
+					Scanner scan = new Scanner(System.in);
+					System.out.println("This move does not involve a capture. Play " + pQualp + targ + "? (Y/N)");
+					String trying = scan.next();
+					if (trying.compareTo("Y") == 0 || trying.compareTo("y") == 0 || trying.compareTo("Yes") == 0 || trying.compareTo("yes") == 0) {
+						return regex_translate(pQualp, pQual, qual, pawn, null, targCast, targ, kCast,
+							qCast, promo, checkM, pQualp + targ, board, color);
+					} else if (trying.compareTo("N") == 0 || trying.compareTo("n") == 0 || trying.compareTo("No") == 0 || trying.compareTo("no") == 0) {
+						System.out.println("Cancelling previous move request");
+						return null;
+					} else {
+						System.out.println("Did not understand your response. Cancelling.");
+						return null;
+					}
+				}
+				/** Handle the Knight and King case separately */
+				if (found.compareTo("N") == 0 || found.compareTo("n") == 0 ||
+					found.compareTo("K") == 0 || found.compareTo("k") == 0) {
+
+					for (int i = 0; i < deltas.length; i++) {
+						int deltaCurr = deltas[i];
+						int test = dest + deltaCurr;
+						if (!inBounds(test)) {
+							continue;
+						}
 						Piece trying = all[test].getPiece();
 						if (trying != null) {
 							if (trying.getTextRepr().compareTo(found) == 0) {
 								if (sqFound != -1 && sqFound != test) {
 									if (pQual.length() == 1) {
-										System.out.println("There is more than one piece that can maneuver here. Please specify.");
+										System.out.println("There is more than one knight that can maneuver here. Please specify.");
 										return null;
 									} else if (pQual.length() == 2) {
 										char character = pQual.charAt(1);
@@ -257,11 +251,10 @@ class Utils {
 											int testVal = test / 16;
 											if (rank == testVal) {
 												if (sqFound / 16 == rank) {
-													System.out.println("There is more than one piece that can maneuver here. Please specify.");
+													System.out.println("There is more than one knight that can maneuver here. Please specify.");
 													return null;
 												}											
 												sqFound = test;
-												break;
 											}
 										} else {
 											int qualifier = character;
@@ -269,11 +262,10 @@ class Utils {
 											int testVal = test % 16;
 											if (qualifier == testVal) {
 												if (sqFound % 16 == qualifier) {
-													System.out.println("There is more than one piece that can maneuver here. Please specify.");
+													System.out.println("There is more than one knight that can maneuver here. Please specify.");
 													return null;
 												}
 												sqFound = test;
-												break;
 											}
 										}
 									} else if (pQual.length() == 3) {
@@ -281,33 +273,29 @@ class Utils {
 										int qualifNum = decodeSquare(qualifier);
 										if (qualifNum == test) {
 											sqFound = test;
-											break;
 										}
 									}
 								} else {
 									if (pQual.length() == 1) {
 										sqFound = test;
-										break;
 									} else if (pQual.length() == 2) {
 										char character = pQual.charAt(1);
 										if (Character.isDigit(character)) {
 											int rank = Character.getNumericValue(character) - 1;
 											int testVal = test / 16;
 											if (testVal != rank) {
-												break;											
+												continue;
 											} else {
 												sqFound = test;
-												break;
 											}
 										} else {
 											int qualifier = character;
 											qualifier -= 97;
 											int testVal = test % 16;
 											if (qualifier != testVal) {
-												break;												
+												continue;
 											} else {
 												sqFound = test;
-												break;												
 											}
 										}
 									} else if (pQual.length() == 3) {
@@ -315,24 +303,110 @@ class Utils {
 										int qualifNum = decodeSquare(qualifier);
 										if (qualifNum == test) {
 											sqFound = test;
-											break;
 										}
 									}
 								}
-							} else {
-								break;
 							}
 						}
-						test += deltaCurr;
+					}
+				} else { /* Handle sliding pieces */
+					for (int i = 0; i < deltas.length; i++) {
+						int deltaCurr = deltas[i];
+						int test = dest + deltaCurr;
+						while (inBounds(test)) {
+							Piece trying = all[test].getPiece();
+							if (trying != null) {
+								if (trying.getTextRepr().compareTo(found) == 0) {
+									if (sqFound != -1 && sqFound != test) {
+										if (pQual.length() == 1) {
+											System.out.println("There is more than one piece that can maneuver here. Please specify.");
+											return null;
+										} else if (pQual.length() == 2) {
+											char character = pQual.charAt(1);
+											if (Character.isDigit(character)) {
+												int rank = Character.getNumericValue(character) - 1;
+												int testVal = test / 16;
+												if (rank == testVal) {
+													if (sqFound / 16 == rank) {
+														System.out.println("There is more than one piece that can maneuver here. Please specify.");
+														return null;
+													}											
+													sqFound = test;
+													break;
+												}
+											} else {
+												int qualifier = character;
+												qualifier -= 97;
+												int testVal = test % 16;
+												if (qualifier == testVal) {
+													if (sqFound % 16 == qualifier) {
+														System.out.println("There is more than one piece that can maneuver here. Please specify.");
+														return null;
+													}
+													sqFound = test;
+													break;
+												}
+											}
+										} else if (pQual.length() == 3) {
+											String qualifier = pQual.substring(1, 3);
+											int qualifNum = decodeSquare(qualifier);
+											if (qualifNum == test) {
+												sqFound = test;
+												break;
+											}
+										}
+									} else {
+										if (pQual.length() == 1) {
+											sqFound = test;
+											break;
+										} else if (pQual.length() == 2) {
+											char character = pQual.charAt(1);
+											if (Character.isDigit(character)) {
+												int rank = Character.getNumericValue(character) - 1;
+												int testVal = test / 16;
+												if (testVal != rank) {
+													break;											
+												} else {
+													sqFound = test;
+													break;
+												}
+											} else {
+												int qualifier = character;
+												qualifier -= 97;
+												int testVal = test % 16;
+												if (qualifier != testVal) {
+													break;												
+												} else {
+													sqFound = test;
+													break;												
+												}
+											}
+										} else if (pQual.length() == 3) {
+											String qualifier = pQual.substring(1, 3);
+											int qualifNum = decodeSquare(qualifier);
+											if (qualifNum == test) {
+												sqFound = test;
+												break;
+											}
+										}
+									}
+								} else {
+									break;
+								}
+							}
+							test += deltaCurr;
+						}
 					}
 				}
+				if (sqFound == -1) {
+					System.out.println("Hmm. This move doesn't seem possible. Try again.");
+					return null;
+				}
+				Piece involved = all[sqFound].getPiece();
+				return new Move(involved, sqFound, dest, full, null, false, false);				
 			}
-			if (sqFound == -1) {
-				System.out.println("Hmm. This move doesn't seem possible. Try again.");
-				return null;
-			}
-			Piece involved = all[sqFound].getPiece();
-			return new Move(involved, sqFound, dest, full, null, false, false);
+
+
 
 		} else { /* If we are dealing with an ordinary pawn move, or castling */
 			/* Look at targ. If contains something, then this is a pawn move. */
