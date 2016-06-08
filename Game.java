@@ -95,6 +95,21 @@ public class Game {
 				/* Actually make the move. */
 				white.makeMove(propose, _board);
 			}
+			printBoard();
+			System.out.println();
+			if (_player2.getType() == 0) { /** Player 2 is human */
+				HumanPlayer black = (HumanPlayer) _player2;
+				Scanner scan = new Scanner(System.in);
+				System.out.println("Your move: ");
+				String trying = scan.next();
+				Move propose = black.proposeMove(_board, trying);
+				while (propose == null) {
+					System.out.println("That move is invalid. Try again: ");
+					trying = scan.next();
+					propose = black.proposeMove(_board, trying);
+				}
+				black.makeMove(propose, _board);
+			}
 		}
 	}
 
