@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.ArrayList;
 
 /**
  * Represents a chess game.
@@ -18,10 +19,11 @@ public class Game {
 		if (player2 == 0) {
 			black = new HumanPlayer(0);
 		} else if (player2 == 1) {
-			black = new ComputerPlayer(1);
+			black = new ComputerPlayer(0);
 		}
 		_player1 = white;
 		_player2 = black;
+		_movesList = new ArrayList<ArrayList<String>>();
 		_board = new Board(_player1, _player2);
 	}
 
@@ -73,11 +75,25 @@ public class Game {
 		System.out.println("    a b c d e f g h  ");
 	}
 
+	void printMoveHistory() {
+		for (int i = 0; i < _movesList.size(); i++) {
+			ArrayList<String> completeTurn = _movesList.get(i);
+			System.out.print(completeTurn.get(0) + ". ");
+			for (int j = 1; j < completeTurn.size(); j++) {
+				System.out.print(completeTurn.get(j) + " ");
+			}
+			System.out.println();
+		}
+	}
+
 	/** While loop controlling game flow. */
 	void play() {
 		while (true /* Game is not yet over*/) {
 			printBoard();
 			System.out.println();
+			ArrayList<String> turn = new ArrayList<String>();
+			turn.add(String.valueOf(_movesList.size() + 1));
+			_movesList.add(turn);
 			/* White player's move */
 			if (_player1.getType() == 0) { /** Player 1 is human */
 				HumanPlayer white = (HumanPlayer) _player1;
@@ -94,7 +110,9 @@ public class Game {
 				/* Checking valid move goes in Utils. Players actually make the move. */
 				/* Actually make the move. */
 				white.makeMove(propose, _board);
+				turn.add(propose.getStr());
 			}
+			printMoveHistory();
 			printBoard();
 			System.out.println();
 			if (_player2.getType() == 0) { /** Player 2 is human */
@@ -109,7 +127,9 @@ public class Game {
 					propose = black.proposeMove(_board, trying);
 				}
 				black.makeMove(propose, _board);
+				turn.add(propose.getStr());
 			}
+			printMoveHistory();
 		}
 	}
 
@@ -119,5 +139,7 @@ public class Game {
 	private Player _player2;
 	/* The board for this game. */
 	private Board _board;
+	/* List of moves for this game. */
+	private ArrayList<ArrayList<String>> _movesList;
 	
 }
