@@ -111,6 +111,9 @@ public class Game {
 				/* Actually make the move. */
 				white.makeMove(propose, _board);
 				turn.add(propose.getStr());
+				if (Utils.isCheck(0, _board)) {
+					System.out.println("Check!");
+				}
 			}
 			printMoveHistory();
 			printBoard();
@@ -128,6 +131,9 @@ public class Game {
 				}
 				black.makeMove(propose, _board);
 				turn.add(propose.getStr());
+				if (Utils.isCheck(1, _board)) {
+					System.out.println("Check!");
+				}
 			}
 			printMoveHistory();
 		}

@@ -55,7 +55,38 @@ class Utils {
 	/** Given a square number, convert it to its square name in 
 	  * standard algebraic chess notation. */
 	public static String sqToNotation(int sqNum) {
-		return null;
+		String ret = "";
+		int file = sqNum % 16;
+		String rank = Integer.toString((sqNum / 16) + 1);
+		switch (file) {
+			case 0: 
+				ret = "a" + rank;
+				break;
+			case 1: 
+				ret = "b" + rank;
+				break;
+			case 2: 
+				ret = "c" + rank;
+				break;
+			case 3: 
+				ret = "d" + rank;
+				break;
+			case 4: 
+				ret = "e" + rank;
+				break;
+			case 5: 
+				ret = "f" + rank;
+				break;
+			case 6: 
+				ret = "g" + rank;
+				break;
+			case 7: 
+				ret = "h" + rank;
+				break;
+			default: 
+				break;
+		}
+		return ret;
 	}
 
 	/** Given the components of a string that complies with the
@@ -645,8 +676,11 @@ class Utils {
 
 
 	/* Returns an ArrayList of all possible square positions this PIECE
-	 * can maneuver to on BOARD. */
-	public static ArrayList<Integer> findScope(Piece piece, Board board) {
+	 * can maneuver to on BOARD. If CONTROL is:
+	 * 0, then we are looking for only the squares pawns control (i.e. not the squares
+	 * directly in front of the pawn it can go to, but where it could check a king)
+	 * 1, then we are looking for only the square the pawn controls. */
+	public static ArrayList<Integer> findScope(Piece piece, Board board, int control) {
 		int color = piece.getColor();
 		int[] possibles = piece.getBases();
 		int currPos = piece.getPosition();
@@ -659,20 +693,24 @@ class Utils {
 				int curr = currPos;
 				switch (i) {
 					case 0:
-						curr += direction;
-						if (squares[curr].isEmpty()) {
-							ret.add(curr);
+						if (control == 0) {
+							curr += direction;
+							if (squares[curr].isEmpty()) {
+								ret.add(curr);
+							}														
 						}
 						break;
 					case 1:
-						if (!piece.hasMoved()) {
-							curr += (direction / 2);
-							if (squares[curr].isEmpty()) {
+						if (control == 0) {
+							if (!piece.hasMoved()) {
 								curr += (direction / 2);
 								if (squares[curr].isEmpty()) {
-									ret.add(curr);
+									curr += (direction / 2);
+									if (squares[curr].isEmpty()) {
+										ret.add(curr);
+									}
 								}
-							}
+							}							
 						}
 						break;
 					default:
@@ -732,19 +770,32 @@ class Utils {
 	/* Returns true if player with COLOR pieces is in check on BOARD. */
 	public static boolean isCheck(int color, Board board) {
 		int kingSquare = -1;
-		boolean ret = false;
 		Square[] squares = board.getSquares();
+		ArrayList<Integer> enemyScopes = new ArrayList<Integer>();
+
 		for (int i = 0; i < 128; i++) {
 			if (squares[i].isEmpty()) {
 				continue;
 			}
 			Piece piece = squares[i].getPiece();
+			/* King found */
 			if (piece.getPieceCode() == 6 && color == piece.getColor()) {
 				kingSquare = i;
-				break;
+			} else if (piece.getColor() != color) {
+				ArrayList<Integer> scope = findScope(piece, board, 1);
+				for (int j = 0; j < scope.size(); j++) {
+					enemyScopes.add(scope.get(j));
+				}
 			}
 		}
-		return ret;
+
+		for (int x = 0; x < enemyScopes.size(); x++) {
+			if (enemyScopes.get(x) == kingSquare) {
+				return true;
+			}
+		}
+
+		return false;
 
 	}
 	
