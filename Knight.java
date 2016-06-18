@@ -16,11 +16,13 @@ public class Knight extends Piece {
 		this.setSliding(false);
 		this.setPieceCode(3);
 		this.setColor(color);
-		int[] possibles = {33, 18, -14, -31, -33, -18, 14, 31};
-		this.setPossibles(possibles);
 		this.setValue(3.0);
 		this.setPosition(position);
 		this.notMoved();
+	}
+
+	public int[] getBases() {
+		return bases();
 	}
 
 	static int[] bases() {

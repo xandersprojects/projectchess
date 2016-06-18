@@ -64,7 +64,9 @@ public class HumanPlayer extends Player {
 			/* The rook is found separately here. */
 			Rook rook = (Rook) board.getSquares()[move.getDest() + 1].getPiece();
 			all[move.getDest()].putPiece(moving);
+			moving.setPosition(move.getDest());
 			all[move.getDest() - 1].putPiece(rook);
+			rook.setPosition(move.getDest() - 1);
 			all[move.getStart()].clear();
 			all[move.getDest() + 1].clear();
 			System.out.println(move.getStr());
@@ -72,7 +74,9 @@ public class HumanPlayer extends Player {
 		} else if (move.getQCast()) {
 			Rook rook = (Rook) board.getSquares()[move.getDest() - 2].getPiece();
 			all[move.getDest()].putPiece(moving);
+			moving.setPosition(move.getDest());
 			all[move.getDest() + 1].putPiece(rook);
+			rook.setPosition(move.getDest() + 1);
 			all[move.getStart()].clear();
 			all[move.getDest() - 2].clear();
 			System.out.println(move.getStr());
@@ -82,8 +86,10 @@ public class HumanPlayer extends Player {
 		/* Handle promotion case */
 		if (move.getPromo() != null) {
 			all[move.getDest()].putPiece(move.getPromo());
+			move.getPromo().setPosition(move.getDest());
 		} else { /* Place original piece on destination square */
 			all[move.getDest()].putPiece(moving);
+			moving.setPosition(move.getDest());
 		}
 		/* Clear piece on the start square */
 		all[move.getStart()].clear();

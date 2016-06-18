@@ -16,11 +16,13 @@ public class Queen extends Piece {
 		this.setSliding(true);
 		this.setPieceCode(5);
 		this.setColor(color);
-		int[] possibles = {16, 17, 1, -15, -16, -17, -1, 15};
-		this.setPossibles(possibles);
 		this.setValue(9.0);
 		this.setPosition(position);
 		this.notMoved();
+	}
+
+	public int[] getBases() {
+		return bases();
 	}
 
 	static int[] bases() {

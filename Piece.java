@@ -85,6 +85,8 @@ public abstract class Piece {
 		_moved = false;
 	}
 
+	abstract int[] getBases();
+
 
 	/** The color of the piece. 1 if white, 0 if black. */
 	private int _color;
@@ -96,7 +98,7 @@ public abstract class Piece {
 	private double value;
 	/** Text representation of this piece on a text board. */
 	private String _textRepr;
-	/** Position of this knight on the board. */
+	/** Position of this piece on the board. */
 	private int _position;
 	/** Code of the piece. P=1, R=2, N=3, B=4, Q=5, K=6 */
 	private int _pieceCode;

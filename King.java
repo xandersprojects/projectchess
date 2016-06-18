@@ -16,11 +16,13 @@ public class King extends Piece {
 		this.setSliding(true);
 		this.setPieceCode(6);
 		this.setColor(color);
-		int[] possibles = {16, 17, 1, -15, -16, -17, -1, 15};
-		this.setPossibles(possibles);
 		this.setValue(1000.0);
 		this.setPosition(position);
 		this.notMoved();
+	}
+
+	public int[] getBases() {
+		return bases();
 	}
 
 	static int[] bases() {

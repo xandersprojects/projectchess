@@ -1,6 +1,7 @@
 import java.lang.ArrayIndexOutOfBoundsException;
 import java.util.Scanner;
 import java.util.Arrays;
+import java.util.ArrayList;
 
 /**
  * Various utility functions for the chess program.
@@ -49,6 +50,12 @@ class Utils {
 				break;
 		}
 		return location;
+	}
+
+	/** Given a square number, convert it to its square name in 
+	  * standard algebraic chess notation. */
+	public static String sqToNotation(int sqNum) {
+		return null;
 	}
 
 	/** Given the components of a string that complies with the
@@ -636,6 +643,110 @@ class Utils {
 		return null;
 	}
 
+
+	/* Returns an ArrayList of all possible square positions this PIECE
+	 * can maneuver to on BOARD. */
+	public static ArrayList<Integer> findScope(Piece piece, Board board) {
+		int color = piece.getColor();
+		int[] possibles = piece.getBases();
+		int currPos = piece.getPosition();
+		Square[] squares = board.getSquares();
+		ArrayList<Integer> ret = new ArrayList<Integer>();
+		if (piece.getPieceCode() == 1) { // Deal with pawn case separately
+
+			for (int i = 0; i < possibles.length; i++) {
+				int direction = possibles[i];
+				int curr = currPos;
+				switch (i) {
+					case 0:
+						curr += direction;
+						if (squares[curr].isEmpty()) {
+							ret.add(curr);
+						}
+						break;
+					case 1:
+						if (!piece.hasMoved()) {
+							curr += (direction / 2);
+							if (squares[curr].isEmpty()) {
+								curr += (direction / 2);
+								if (squares[curr].isEmpty()) {
+									ret.add(curr);
+								}
+							}
+						}
+						break;
+					default:
+						curr += direction;
+						if (!squares[curr].isEmpty()) {
+							if (squares[curr].getPiece().getColor() != color) {
+								ret.add(curr);
+							}
+						}
+						break;
+				}
+			}
+
+		} else if (piece.getPieceCode() == 3 || 
+				   piece.getPieceCode() == 6) { // Deal with knight, king case separately
+
+			for (int i = 0; i < possibles.length; i++) {
+				int direction = possibles[i];
+				int curr = currPos;
+				curr += direction;
+				if (inBounds(curr)) {
+					if (squares[curr].isEmpty()) {
+						ret.add(curr);
+					} else {
+						if (squares[curr].getPiece().getColor() != color) {
+							ret.add(curr);
+						}
+					}
+				}
+			}
+
+		} else { // Bishop, Queen, or Rook: Sliding pieces
+
+			for (int i = 0; i < possibles.length; i++) {
+				int direction = possibles[i];
+				int curr = currPos;
+				curr += direction;
+				while (inBounds(curr)) {
+					if (!squares[curr].isEmpty()) {
+						if (squares[curr].getPiece().getColor() == color) {
+							break;
+						} else if (squares[curr].getPiece().getColor() != color) {
+							ret.add(curr);
+							break;
+						}
+					} else {
+						ret.add(curr);
+						curr += direction;
+					}
+				}
+			}
+
+		}
+		return ret;
+	}
+
+	/* Returns true if player with COLOR pieces is in check on BOARD. */
+	public static boolean isCheck(int color, Board board) {
+		int kingSquare = -1;
+		boolean ret = false;
+		Square[] squares = board.getSquares();
+		for (int i = 0; i < 128; i++) {
+			if (squares[i].isEmpty()) {
+				continue;
+			}
+			Piece piece = squares[i].getPiece();
+			if (piece.getPieceCode() == 6 && color == piece.getColor()) {
+				kingSquare = i;
+				break;
+			}
+		}
+		return ret;
+
+	}
 	
 
 }

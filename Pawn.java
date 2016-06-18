@@ -10,12 +10,8 @@ public class Pawn extends Piece {
 		super();
 		if (color == 1) {
 			this.setTextRepr("P");
-			int[] possibles = {16, 32, 15, 17};
-			this.setPossibles(possibles);
 		} else {
 			this.setTextRepr("p");
-			int[] possibles = {-16, -32, -15, -17};
-			this.setPossibles(possibles);
 		}
 		this.setSliding(true);
 		this.setPieceCode(1);
@@ -24,6 +20,13 @@ public class Pawn extends Piece {
 		this.setValue(1.0);
 		this.setPosition(position);
 		this.notMoved();
+	}
+
+	public int[] getBases() {
+		if (this.getColor() == 1) {
+			return whitePawnPossible();
+		}
+		return blackPawnPossible();
 	}
 
 	static int[] whitePawnPossible() {
