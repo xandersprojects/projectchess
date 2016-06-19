@@ -3,6 +3,9 @@ import java.util.Scanner;
 import java.util.Arrays;
 import java.util.ArrayList;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Various utility functions for the chess program.
  */
@@ -679,7 +682,8 @@ class Utils {
 	 * can maneuver to on BOARD. If CONTROL is:
 	 * 0, then we are looking for only the squares pawns control (i.e. not the squares
 	 * directly in front of the pawn it can go to, but where it could check a king)
-	 * 1, then we are looking for only the square the pawn controls. */
+	 * 1, then we are looking for only the squares the pawn control.
+	 * 2, then we are looking for everything. */
 	public static ArrayList<Integer> findScope(Piece piece, Board board, int control) {
 		int color = piece.getColor();
 		int[] possibles = piece.getBases();
@@ -693,7 +697,7 @@ class Utils {
 				int curr = currPos;
 				switch (i) {
 					case 0:
-						if (control == 0) {
+						if (control == 0 || control == 2) {
 							curr += direction;
 							if (squares[curr].isEmpty()) {
 								ret.add(curr);
@@ -701,7 +705,7 @@ class Utils {
 						}
 						break;
 					case 1:
-						if (control == 0) {
+						if (control == 0 || control == 2) {
 							if (!piece.hasMoved()) {
 								curr += (direction / 2);
 								if (squares[curr].isEmpty()) {
@@ -714,11 +718,13 @@ class Utils {
 						}
 						break;
 					default:
-						curr += direction;
-						if (!squares[curr].isEmpty()) {
-							if (squares[curr].getPiece().getColor() != color) {
-								ret.add(curr);
-							}
+						if (control == 1 || control == 2) {
+							curr += direction;
+							if (!squares[curr].isEmpty()) {
+								if (squares[curr].getPiece().getColor() != color) {
+									ret.add(curr);
+								}
+							}							
 						}
 						break;
 				}
@@ -782,7 +788,7 @@ class Utils {
 			if (piece.getPieceCode() == 6 && color == piece.getColor()) {
 				kingSquare = i;
 			} else if (piece.getColor() != color) {
-				ArrayList<Integer> scope = findScope(piece, board, 1);
+				ArrayList<Integer> scope = findScope(piece, board, 2);
 				for (int j = 0; j < scope.size(); j++) {
 					enemyScopes.add(scope.get(j));
 				}
@@ -797,6 +803,85 @@ class Utils {
 
 		return false;
 
+	}
+
+	/* Returns a list of all possible moves for player with COLOR pieces on
+	 * the current BOARD position. */
+	public static ArrayList<Move> moveGenerator(int color, Board board) {
+		ArrayList<Move> ret = new ArrayList<Move>();
+
+		Square[] squares = board.getSquares();
+
+		for (int i = 0; i < 128; i++) {
+			if (squares[i].isEmpty()) {
+				continue;
+			}
+			Piece piece = squares[i].getPiece();
+			if (piece.getColor() == color) {
+				int code = piece.getPieceCode();
+				String pattern = "^(([RNBQK]{1}([a-h]+[1-8]|[a-h]|[1-8])?)|([a-h]))?([x])?(([a-h]+[1-8])|(0-0)|(0-0-0))([=][RNBQ])?([+]|[#])?$";
+				Pattern anyMove = Pattern.compile(pattern);
+				switch (code) {
+					case 1: // Pawn
+						ArrayList<Integer> pawnThrusts = findScope(piece, board, 0);
+						for (int j = 0; j < pawnThrusts.size(); j++) {
+							String moveStr = sqToNotation(pawnThrusts.get(j));
+							Matcher m = anyMove.matcher(moveStr);
+							Move move = null;
+							if (m.find()) {
+								move = Utils.regex_translate(m.group(1), m.group(2), m.group(3),
+												m.group(4), m.group(5), m.group(6),
+												m.group(7), m.group(8), m.group(9),
+												m.group(10), m.group(11), moveStr, board,
+												color);
+							}
+							ret.add(move);
+						}
+						ArrayList<Integer> pawnCaps = findScope(piece, board, 1);
+						for (int j = 0; j < pawnCaps.size(); j++) {
+							String moveStr = "";
+							String pawnSq = sqToNotation(piece.getPosition());
+							String file = pawnSq.substring(0, 1);
+							moveStr = file + "x" + sqToNotation(pawnCaps.get(j));
+							Matcher m = anyMove.matcher(moveStr);
+							Move move = null;
+							if (m.find()) {
+								move = Utils.regex_translate(m.group(1), m.group(2), m.group(3),
+												m.group(4), m.group(5), m.group(6),
+												m.group(7), m.group(8), m.group(9),
+												m.group(10), m.group(11), moveStr, board,
+												color);
+							}
+							ret.add(move);
+						}
+						break;
+					default: // Anything else
+
+					/* TO DO: HANDLE AMBIGUITIES */
+					
+						ArrayList<Integer> pieceMoves = findScope(piece, board, 2);
+						for (int j = 0; j < pieceMoves.size(); j++) {
+							String moveStr = piece.getTextRepr().toUpperCase();
+							if (!squares[pieceMoves.get(j)].isEmpty()) {
+								moveStr = moveStr + "x";
+							}
+							moveStr = moveStr + sqToNotation(pieceMoves.get(j));
+							Matcher m = anyMove.matcher(moveStr);
+							Move move = null;
+							if (m.find()) {
+								move = Utils.regex_translate(m.group(1), m.group(2), m.group(3),
+												m.group(4), m.group(5), m.group(6),
+												m.group(7), m.group(8), m.group(9),
+												m.group(10), m.group(11), moveStr, board,
+												color);
+							}
+							ret.add(move);
+						}
+						break;
+				}
+			}
+		}
+		return ret;
 	}
 	
 
