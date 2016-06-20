@@ -857,11 +857,26 @@ class Utils {
 						break;
 					default: // Anything else
 
-					/* TO DO: HANDLE AMBIGUITIES */
-					
 						ArrayList<Integer> pieceMoves = findScope(piece, board, 2);
 						for (int j = 0; j < pieceMoves.size(); j++) {
 							String moveStr = piece.getTextRepr().toUpperCase();
+
+							/* TO DO: HANDLE AMBIGUITIES */
+							// int[] piecePossibles = piece.bases();
+							// for (int k = 0; k < piecePossibles.length; k++) {
+							// 	int direction = piecePossibles[k];
+							// 	int curr = pieceMoves.get(j);
+							// 	curr += direction;
+							// 	while (inBounds(curr)) {
+							// 		if (!squares[curr].isEmpty()) {
+							// 			if (squares[curr].getPiece().getPieceCode() == code &&
+							// 				squares[curr].getPiece().getColor() == color) {
+
+							// 			}
+							// 		}
+							// 	}
+							// }
+
 							if (!squares[pieceMoves.get(j)].isEmpty()) {
 								moveStr = moveStr + "x";
 							}
@@ -874,6 +889,27 @@ class Utils {
 												m.group(7), m.group(8), m.group(9),
 												m.group(10), m.group(11), moveStr, board,
 												color);
+								if (move == null) {
+									int piecePos = piece.getPosition();
+									String sqName = sqToNotation(piecePos);
+									String[] ambiguities = new String[3];
+									ambiguities[0] = sqName.substring(0, 1);
+									ambiguities[1] = sqName.substring(1, 2);
+									ambiguities[2] = sqName;
+									int incr = 0;
+									while (move == null) {
+										String tryMove = moveStr.substring(0, 1) + ambiguities[incr] + moveStr.substring(1);
+										Matcher mTry = anyMove.matcher(tryMove);
+										if (mTry.find()) {
+											move = Utils.regex_translate(mTry.group(1), mTry.group(2), mTry.group(3),
+														mTry.group(4), mTry.group(5), mTry.group(6),
+														mTry.group(7), mTry.group(8), mTry.group(9),
+														mTry.group(10), mTry.group(11), tryMove, board,
+														color);
+										}
+										incr++;
+									}
+								}
 							}
 							ret.add(move);
 						}
