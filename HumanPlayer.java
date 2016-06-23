@@ -2,6 +2,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.lang.IllegalArgumentException;
 
+import java.util.ArrayList;
+
 /**
  * Represents a human chess player.
  */
@@ -15,7 +17,7 @@ public class HumanPlayer extends Player {
 	}
 
 	/** User inputted proposed move to make. */
-	public Move proposeMove(Board board, String move) {
+	public Move proposeMove(Board board, String move, ArrayList<ArrayList<String>> moveList) {
 		String pattern = "^(([RNBQK]{1}([a-h]+[1-8]|[a-h]|[1-8])?)|([a-h]))?([x])?(([a-h]+[1-8])|(0-0)|(0-0-0))([=][RNBQ])?([+]|[#])?$";
 		Pattern anyMove = Pattern.compile(pattern);
 		Matcher m = anyMove.matcher(move);
@@ -42,7 +44,7 @@ public class HumanPlayer extends Player {
 												m.group(4), m.group(5), m.group(6),
 												m.group(7), m.group(8), m.group(9),
 												m.group(10), m.group(11), move, board,
-												this.getColor());
+												this.getColor(), moveList);
 			
 		}
 		return propose;
@@ -55,8 +57,27 @@ public class HumanPlayer extends Player {
 
 		/* Piece in question */
 		Piece moving = move.getPiece();
-		
 		moving.nowMoved();
+
+		if (move.getEnPassant()) {
+			all[move.getDest()].putPiece(moving);
+			moving.setPosition(move.getDest());
+			all[move.getStart()].clear();
+			if (move.getPiece().getColor() == 1) {
+				all[move.getDest() - 16].clear();
+			} else {
+				all[move.getDest() + 16].clear();
+			}
+			return;
+		}
+
+		/* If pawn has moved forward two spaces, set that field to true */
+		if (moving.getPieceCode() == 1) {
+			if (Math.abs(move.getStart() - move.getDest()) == 32) {
+				Pawn pawn = (Pawn) moving;
+				pawn.movedTwo();
+			}
+		}
 
 		/* Special if cases for castling */
 		if (move.getKCast()) {

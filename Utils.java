@@ -110,6 +110,7 @@ class Utils {
 	  * FULL is the entire move, as a single string
 	  * BOARD is the current board.
 	  * COLOR is the color of the player making this move.
+	  * MOVELIST is the move history so far in the current game. (used for en passant purposes)
 
 	  * Since regex_translate is responsible for creating the Move object,
 	  * it is its job to ensure that the move is "feasible," but not necessarily
@@ -120,7 +121,7 @@ class Utils {
 	public static Move regex_translate(String pQualp, String pQual, String qual, String pawn,
 						   String capt, String targCast, String targ, String kCast,
 						   String qCast, String promo, String checkM, String full, Board board,
-						   int color) {
+						   int color, ArrayList<ArrayList<String>> moveList) {
 		Square[] all = board.getSquares();
 		Move ret;
 		if (pQualp != null) { /* If a piece is moving, or a pawn is making a capture */
@@ -128,8 +129,13 @@ class Utils {
 			if (pawn != null) {
 				int targSq = decodeSquare(targ);
 				if (all[targSq].isEmpty()) {
-					System.out.println("There is no target capture.");
-					return null;
+					/* Deal with en passant. */
+					if (targSq / 16 == 5 || targSq / 16 == 2) { /* Pawn taking empty square on 6th rank --> en passant (3rd for black) */
+						return enPassantHandler(full, targSq, color, board, moveList);
+					} else {
+						System.out.println("There is no target capture.");
+						return null;
+					}
 				}
 				Piece targCapt = all[targSq].getPiece();
 				if (color == targCapt.getColor()) {
@@ -152,9 +158,7 @@ class Utils {
 					} else if ((color == 1 && all[test].getPiece().getTextRepr().compareTo("P") == 0) ||
 							   (color == 0 && all[test].getPiece().getTextRepr().compareTo("p") == 0)) {
 						int foundFile = test % 16;
-						System.out.println(foundFile);
 						int supposed = (character - 97) % 16;
-						System.out.println(supposed);
 						if (foundFile == supposed) {
 							found = (Pawn) all[test].getPiece();
 							break;
@@ -193,9 +197,9 @@ class Utils {
 					if (newPiece == null) {
 						return null;
 					}
-					return new Move(found, test, targSq, full, newPiece, false, false);
+					return new Move(found, test, targSq, full, newPiece, false, false, false);
 				}
-				return new Move(found, test, targSq, full, null, false, false);
+				return new Move(found, test, targSq, full, null, false, false, false);
 			} else {
 				/* Deal with regular piece moves. */
 				int[] deltas = null;
@@ -259,7 +263,7 @@ class Utils {
 					String trying = scan.next();
 					if (trying.compareTo("Y") == 0 || trying.compareTo("y") == 0 || trying.compareTo("Yes") == 0 || trying.compareTo("yes") == 0) {
 						return regex_translate(pQualp, pQual, qual, pawn, null, targCast, targ, kCast,
-							qCast, promo, checkM, pQualp + targ, board, color);
+							qCast, promo, checkM, pQualp + targ, board, color, moveList);
 					} else if (trying.compareTo("N") == 0 || trying.compareTo("n") == 0 || trying.compareTo("No") == 0 || trying.compareTo("no") == 0) {
 						System.out.println("Cancelling previous move request");
 						return null;
@@ -444,7 +448,7 @@ class Utils {
 					return null;
 				}
 				Piece involved = all[sqFound].getPiece();
-				return new Move(involved, sqFound, dest, full, null, false, false);				
+				return new Move(involved, sqFound, dest, full, null, false, false, false);				
 			}
 
 
@@ -549,10 +553,10 @@ class Utils {
 					if (newPiece == null) {
 						return null;
 					}
-					return new Move(pawnPiece, foundStart, dest, full, newPiece, false, false);
+					return new Move(pawnPiece, foundStart, dest, full, newPiece, false, false, false);
 				}
 
-				ret = new Move(pawnPiece, foundStart, dest, full, null, false, false);
+				ret = new Move(pawnPiece, foundStart, dest, full, null, false, false, false);
 				return ret;
 			} else if (kCast != null) {
 				/* Look at kCast. If contains something, this is a kingside castling move. */
@@ -583,7 +587,7 @@ class Utils {
 						return null;
 					}
 					/* Return the castling move. Castling will be handled by the player. */
-					return new Move(king, 4, 6, full, null, true, false);
+					return new Move(king, 4, 6, full, null, true, false, false);
 				} else {
 					if (all[116].isEmpty()) {
 						return null;
@@ -611,7 +615,7 @@ class Utils {
 						return null;
 					}
 					/* Return the castling move. Castling will be handled by the player. */
-					return new Move(king, 116, 118, full, null, true, false);
+					return new Move(king, 116, 118, full, null, true, false, false);
 				}
 			} else if (qCast != null) {
 				/* Look at qCast. If contains something, this is a queenside castling move. */
@@ -642,7 +646,7 @@ class Utils {
 						return null;
 					}
 					/* Return the castling move. Castling will be handled by the player. */
-					return new Move(king, 4, 2, full, null, false, true);
+					return new Move(king, 4, 2, full, null, false, true, false);
 				} else {
 					if (all[116].isEmpty()) {
 						return null;
@@ -670,7 +674,87 @@ class Utils {
 						return null;
 					}
 					/* Return the castling move. Castling will be handled by the player. */
-					return new Move(king, 116, 114, full, null, false, true);
+					return new Move(king, 116, 114, full, null, false, true, false);
+				}
+			}
+		}
+		return null;
+	}
+
+	/* Given the FULL algebraic chess notation of an en passant move made by player
+	 * who controls COLOR pieces on BOARD, and the TARGSQ
+	 * target square of the capture which should be empty, returns a valid Move
+	 * if all rules obeying en passant are satisfied. Returns null otherwise. */
+	static Move enPassantHandler(String full, int targSq, int color, Board board, ArrayList<ArrayList<String>> moveList) {
+		/* First of all, verify that there is a pawn to capture. */
+		Square[] squares = board.getSquares();
+		String targSqName = sqToNotation(targSq);
+
+		System.out.println("The target square is: " + sqToNotation(targSq));
+
+		int targPawnSq = -1;
+		if (color == 1) {
+			targPawnSq = targSq - 16;
+		} else if (color == 0) {
+			targPawnSq = targSq + 16;
+		}
+		System.out.println("The target pawn is on square: " + sqToNotation(targPawnSq));
+		if (squares[targPawnSq].isEmpty()) {
+			return null;
+		} else {
+			Piece targPiece = squares[targPawnSq].getPiece();
+			if (targPiece.getPieceCode() != 1 || targPiece.getColor() == color) {
+				return null;
+			}
+			/* Now we have verified that the targPiece is an enemy pawn. */
+			Pawn targPawn = (Pawn) targPiece;
+			/* Now we check if that pawn was the last to move two spaces. */
+			if (targPawn.didTwo()) {
+				/* Must look at previous move */
+				int outerLength = moveList.size();
+				if (color == 1) {
+					outerLength--;
+				}
+				ArrayList<String> moveSet = moveList.get(outerLength - 1);
+				int innerLength = moveSet.size();
+				String lastMove = moveSet.get(innerLength - 1);
+				if (lastMove.compareTo(sqToNotation(targPawn.getPosition())) == 0) {
+					/* Find the pawn */ /* TO DO: FIND FOUND AND START */
+					Pawn found = null;
+					String targetFile = targSqName.substring(0, 1);
+					String origFile = full.substring(0, 1);
+					int[] pawnForwards;
+					if (color == 1) {
+						pawnForwards = Arrays.copyOfRange(Pawn.whitePawnPossible(), 2, 4);
+					} else {
+						pawnForwards = Arrays.copyOfRange(Pawn.blackPawnPossible(), 2, 4);
+					}
+					int pawnStart = -1;
+					if (targetFile.compareTo(origFile) > 0) { // targetFile is to the right of origFile
+						if (color == 1) {
+							pawnStart = targSq - pawnForwards[1];
+						} else {
+							pawnStart = targSq - pawnForwards[0];
+						}
+						System.out.println("pawnStart " + Integer.toString(pawnStart));
+						found = (Pawn) squares[pawnStart].getPiece();
+					} else { // targetFile is to the left of origFile
+						if (color == 1) {
+							pawnStart = targSq - pawnForwards[0];
+							System.out.println("targPawnSq is " + Integer.toString(targSq));
+							System.out.println("We are subtracting: " + Integer.toString(pawnForwards[0]));
+							System.out.println("Result: " + Integer.toString(pawnStart));
+						} else {
+							pawnStart = targSq - pawnForwards[1];
+						}
+						System.out.println("pawnStart " + Integer.toString(pawnStart));
+						found = (Pawn) squares[pawnStart].getPiece();
+					}
+					/* This is a valid en passant move which obeys all the rules! */
+					System.out.println("Successful En Passant!");
+					return new Move(found, pawnStart, targSq, full, null, false, false, true);
+				} else {
+					return null;
 				}
 			}
 		}
@@ -684,7 +768,7 @@ class Utils {
 	 * directly in front of the pawn it can go to, but where it could check a king)
 	 * 1, then we are looking for only the squares the pawn control.
 	 * 2, then we are looking for everything. */
-	public static ArrayList<Integer> findScope(Piece piece, Board board, int control) {
+	public static ArrayList<Integer> findScope(Piece piece, Board board, int control, ArrayList<ArrayList<String>> moveList) {
 		int color = piece.getColor();
 		int[] possibles = piece.getBases();
 		int currPos = piece.getPosition();
@@ -724,7 +808,42 @@ class Utils {
 								if (squares[curr].getPiece().getColor() != color) {
 									ret.add(curr);
 								}
-							}							
+							} else { // En Passant Handler
+								if (moveList.size() > 1) {
+									int outerLength = moveList.size();
+									if (color == 1) {
+										outerLength--;
+									}
+									ArrayList<String> moveSet = moveList.get(outerLength - 1);
+									int innerLength = moveSet.size();
+									String lastMove = moveSet.get(innerLength - 1);
+									if (curr / 16 == 5 && color == 1) {
+										int enemyPawn = curr - 16;
+										if (squares[enemyPawn].isEmpty()) {
+											break;
+										}
+										Piece enemy = squares[enemyPawn].getPiece();
+										if (enemy.getPieceCode() == 1 && enemy.getColor() != color) {
+											Pawn enPawn = (Pawn) enemy;
+											if (lastMove.compareTo(sqToNotation(curr - 16)) == 0 && enPawn.didTwo()) {
+												ret.add(curr);
+											}
+										}
+									} else if (curr / 16 == 2 && color == 0) {
+										int enemyPawn = curr + 16;
+										if (squares[enemyPawn].isEmpty()) {
+											break;
+										}
+										Piece enemy = squares[enemyPawn].getPiece();
+										if (enemy.getPieceCode() == 1 && enemy.getColor() != color) {
+											Pawn enPawn = (Pawn) enemy;
+											if (lastMove.compareTo(sqToNotation(curr + 16)) == 0 && enPawn.didTwo()) {
+												ret.add(curr);
+											}
+										}
+									}
+								}
+							}
 						}
 						break;
 				}
@@ -774,7 +893,7 @@ class Utils {
 	}
 
 	/* Returns true if player with COLOR pieces is in check on BOARD. */
-	public static boolean isCheck(int color, Board board) {
+	public static boolean isCheck(int color, Board board, ArrayList<ArrayList<String>> moveList) {
 		int kingSquare = -1;
 		Square[] squares = board.getSquares();
 		ArrayList<Integer> enemyScopes = new ArrayList<Integer>();
@@ -788,7 +907,7 @@ class Utils {
 			if (piece.getPieceCode() == 6 && color == piece.getColor()) {
 				kingSquare = i;
 			} else if (piece.getColor() != color) {
-				ArrayList<Integer> scope = findScope(piece, board, 2);
+				ArrayList<Integer> scope = findScope(piece, board, 2, moveList);
 				for (int j = 0; j < scope.size(); j++) {
 					enemyScopes.add(scope.get(j));
 				}
@@ -807,7 +926,7 @@ class Utils {
 
 	/* Returns a list of all possible moves for player with COLOR pieces on
 	 * the current BOARD position. */
-	public static ArrayList<Move> moveGenerator(int color, Board board) {
+	public static ArrayList<Move> moveGenerator(int color, Board board, ArrayList<ArrayList<String>> moveList) {
 		ArrayList<Move> ret = new ArrayList<Move>();
 
 		Square[] squares = board.getSquares();
@@ -823,9 +942,27 @@ class Utils {
 				Pattern anyMove = Pattern.compile(pattern);
 				switch (code) {
 					case 1: // Pawn
-						ArrayList<Integer> pawnThrusts = findScope(piece, board, 0);
+						ArrayList<Integer> pawnThrusts = findScope(piece, board, 0, moveList);
+
 						for (int j = 0; j < pawnThrusts.size(); j++) {
 							String moveStr = sqToNotation(pawnThrusts.get(j));
+							/* Handle the promotion case */
+							if (pawnThrusts.get(j) / 16 == 7 || pawnThrusts.get(j) / 16 == 0) {
+								String[] promos = {"=Q", "=R", "=N", "=B"};
+								for (int k = 0; k < promos.length; k++) {
+									String complete = moveStr + promos[k];
+									Matcher mPromo = anyMove.matcher(complete);
+									Move move = null;
+									if (mPromo.find()) {
+										move = Utils.regex_translate(mPromo.group(1), mPromo.group(2), 
+											mPromo.group(3), mPromo.group(4), mPromo.group(5), mPromo.group(6),
+											mPromo.group(7), mPromo.group(8), mPromo.group(9), mPromo.group(10),
+											mPromo.group(11), complete, board, color, moveList);
+									}
+									ret.add(move);
+								}
+								break;
+							}
 							Matcher m = anyMove.matcher(moveStr);
 							Move move = null;
 							if (m.find()) {
@@ -833,16 +970,36 @@ class Utils {
 												m.group(4), m.group(5), m.group(6),
 												m.group(7), m.group(8), m.group(9),
 												m.group(10), m.group(11), moveStr, board,
-												color);
+												color, moveList);
 							}
 							ret.add(move);
 						}
-						ArrayList<Integer> pawnCaps = findScope(piece, board, 1);
+
+						/* Next: PAWN CAPTURES */
+
+						ArrayList<Integer> pawnCaps = findScope(piece, board, 1, moveList);
 						for (int j = 0; j < pawnCaps.size(); j++) {
 							String moveStr = "";
 							String pawnSq = sqToNotation(piece.getPosition());
 							String file = pawnSq.substring(0, 1);
 							moveStr = file + "x" + sqToNotation(pawnCaps.get(j));
+							/* Handle promotion case */
+							if (pawnCaps.get(j) / 16 == 7 || pawnCaps.get(j) / 16 == 0) {
+								String[] promos = {"=Q", "=R", "=N", "=B"};
+								for (int k = 0; k < promos.length; k++) {
+									String complete = moveStr + promos[k];
+									Matcher mPromo = anyMove.matcher(complete);
+									Move move = null;
+									if (mPromo.find()) {
+										move = Utils.regex_translate(mPromo.group(1), mPromo.group(2), 
+											mPromo.group(3), mPromo.group(4), mPromo.group(5), mPromo.group(6),
+											mPromo.group(7), mPromo.group(8), mPromo.group(9), mPromo.group(10),
+											mPromo.group(11), complete, board, color, moveList);
+									}
+									ret.add(move);
+								}
+								break;
+							}
 							Matcher m = anyMove.matcher(moveStr);
 							Move move = null;
 							if (m.find()) {
@@ -850,32 +1007,16 @@ class Utils {
 												m.group(4), m.group(5), m.group(6),
 												m.group(7), m.group(8), m.group(9),
 												m.group(10), m.group(11), moveStr, board,
-												color);
+												color, moveList);
 							}
 							ret.add(move);
 						}
 						break;
 					default: // Anything else
 
-						ArrayList<Integer> pieceMoves = findScope(piece, board, 2);
+						ArrayList<Integer> pieceMoves = findScope(piece, board, 2, moveList);
 						for (int j = 0; j < pieceMoves.size(); j++) {
 							String moveStr = piece.getTextRepr().toUpperCase();
-
-							/* TO DO: HANDLE AMBIGUITIES */
-							// int[] piecePossibles = piece.bases();
-							// for (int k = 0; k < piecePossibles.length; k++) {
-							// 	int direction = piecePossibles[k];
-							// 	int curr = pieceMoves.get(j);
-							// 	curr += direction;
-							// 	while (inBounds(curr)) {
-							// 		if (!squares[curr].isEmpty()) {
-							// 			if (squares[curr].getPiece().getPieceCode() == code &&
-							// 				squares[curr].getPiece().getColor() == color) {
-
-							// 			}
-							// 		}
-							// 	}
-							// }
 
 							if (!squares[pieceMoves.get(j)].isEmpty()) {
 								moveStr = moveStr + "x";
@@ -888,7 +1029,7 @@ class Utils {
 												m.group(4), m.group(5), m.group(6),
 												m.group(7), m.group(8), m.group(9),
 												m.group(10), m.group(11), moveStr, board,
-												color);
+												color, moveList);
 								if (move == null) {
 									int piecePos = piece.getPosition();
 									String sqName = sqToNotation(piecePos);
@@ -905,7 +1046,7 @@ class Utils {
 														mTry.group(4), mTry.group(5), mTry.group(6),
 														mTry.group(7), mTry.group(8), mTry.group(9),
 														mTry.group(10), mTry.group(11), tryMove, board,
-														color);
+														color, moveList);
 										}
 										incr++;
 									}

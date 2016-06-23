@@ -17,6 +17,7 @@ public class Pawn extends Piece {
 		this.setPieceCode(1);
 		this.setColor(color);
 		_moved = false;
+		_two = false;
 		this.setValue(1.0);
 		this.setPosition(position);
 		this.notMoved();
@@ -39,7 +40,17 @@ public class Pawn extends Piece {
 		return black;
 	}
 
+	void movedTwo() {
+		_two = true;
+	}
+
+	boolean didTwo() {
+		return _two;
+	}
+
 
 	/** True iff this pawn has already moved. */
 	private boolean _moved;
+	/** True iff this pawn has moved two spaces on its first move. */
+	private boolean _two;
 }

@@ -6,7 +6,7 @@ import java.lang.NumberFormatException;
 
 public class Move {
 
-	Move(Piece piece, int start, int dest, String str, Piece promo, boolean kCast, boolean qCast) {
+	Move(Piece piece, int start, int dest, String str, Piece promo, boolean kCast, boolean qCast, boolean enPassant) {
 		_piece = piece;
 		_start = start;
 		_dest = dest;
@@ -14,6 +14,7 @@ public class Move {
 		_promo = promo;
 		_kCast = kCast;
 		_qCast = qCast;
+		_enPassant = enPassant;
 	}
 
 	Piece getPiece() {
@@ -44,6 +45,10 @@ public class Move {
 		return _qCast;
 	}
 
+	boolean getEnPassant() {
+		return _enPassant;
+	}
+
 	/** Piece involved in this move. */
 	private Piece _piece;
 	/** Start square of this move. */
@@ -58,5 +63,7 @@ public class Move {
 	private boolean _kCast;
 	/** Boolean indicating queenside castle? */
 	private boolean _qCast;
+	/** Boolean indicating enPassant */
+	private boolean _enPassant;
 }
 
