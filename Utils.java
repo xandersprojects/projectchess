@@ -2,6 +2,7 @@ import java.lang.ArrayIndexOutOfBoundsException;
 import java.util.Scanner;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -166,6 +167,8 @@ class Utils {
 					}
 				}
 				if (found == null) {
+					System.out.println("Hurrr");
+					System.out.println(full);
 					System.out.println("No pawn can make this move.");
 					return null;
 				}
@@ -741,9 +744,6 @@ class Utils {
 					} else { // targetFile is to the left of origFile
 						if (color == 1) {
 							pawnStart = targSq - pawnForwards[0];
-							System.out.println("targPawnSq is " + Integer.toString(targSq));
-							System.out.println("We are subtracting: " + Integer.toString(pawnForwards[0]));
-							System.out.println("Result: " + Integer.toString(pawnStart));
 						} else {
 							pawnStart = targSq - pawnForwards[1];
 						}
@@ -759,6 +759,90 @@ class Utils {
 			}
 		}
 		return null;
+	}
+
+	/** Makes the move MOVE on BOARD. If TEST is 1, this indicates that we
+	  * are just testing a move, and the properties of the piece should not 
+	  * be altered (i.e. the piece should not be considered as having moved) */
+	public static void makeMove(Move move, Board board, int test) {
+
+		Square[] all = board.getSquares();
+
+		/* Piece in question */
+		Piece moving = move.getPiece();
+
+		if (test == 0) {
+			moving.nowMoved();
+		}
+
+		/* Special case for en passant. */
+		if (move.getEnPassant()) {
+			all[move.getDest()].putPiece(moving);
+			moving.setPosition(move.getDest());
+			all[move.getStart()].clear();
+			if (move.getPiece().getColor() == 1) {
+				all[move.getDest() - 16].clear();
+			} else {
+				all[move.getDest() + 16].clear();
+			}
+			return;
+		}
+
+		/* If pawn has moved forward two spaces, set that field to true */
+		if (moving.getPieceCode() == 1) {
+			if (Math.abs(move.getStart() - move.getDest()) == 32) {
+				Pawn pawn = (Pawn) moving;
+				if (test == 0) {
+					pawn.movedTwo();
+				}
+			}
+		}
+
+		/* Special if cases for castling */
+		if (move.getKCast()) {
+			/* The king should be contained within the move. */
+			/* The rook is found separately here. */
+			Rook rook = (Rook) board.getSquares()[move.getDest() + 1].getPiece();
+			all[move.getDest()].putPiece(moving);
+			moving.setPosition(move.getDest());
+			all[move.getDest() - 1].putPiece(rook);
+			rook.setPosition(move.getDest() - 1);
+			all[move.getStart()].clear();
+			all[move.getDest() + 1].clear();
+			if (test == 0) {
+				System.out.println(move.getStr());
+			}
+			return;
+		} else if (move.getQCast()) {
+			Rook rook = (Rook) board.getSquares()[move.getDest() - 2].getPiece();
+			all[move.getDest()].putPiece(moving);
+			moving.setPosition(move.getDest());
+			all[move.getDest() + 1].putPiece(rook);
+			rook.setPosition(move.getDest() + 1);
+			all[move.getStart()].clear();
+			all[move.getDest() - 2].clear();
+			if (test == 0) {
+				System.out.println(move.getStr());
+			}
+			return;
+		}
+
+		/* Handle promotion case */
+		if (move.getPromo() != null) {
+			all[move.getDest()].putPiece(move.getPromo());
+			move.getPromo().setPosition(move.getDest());
+		} else { /* Place original piece on destination square */
+			all[move.getDest()].putPiece(moving);
+			if (test == 0) {
+				moving.setPosition(move.getDest());
+			}
+		}
+		/* Clear piece on the start square */
+		all[move.getStart()].clear();
+		/* Print out the move made. */
+		if (test == 0) {
+			System.out.println(move.getStr());
+		}
 	}
 
 
@@ -959,7 +1043,9 @@ class Utils {
 											mPromo.group(7), mPromo.group(8), mPromo.group(9), mPromo.group(10),
 											mPromo.group(11), complete, board, color, moveList);
 									}
-									ret.add(move);
+									if (!sanityCheck(move, color, board, moveList)) {
+										ret.add(move);
+									}
 								}
 								break;
 							}
@@ -972,7 +1058,9 @@ class Utils {
 												m.group(10), m.group(11), moveStr, board,
 												color, moveList);
 							}
-							ret.add(move);
+							if (!sanityCheck(move, color, board, moveList)) {
+								ret.add(move);
+							}
 						}
 
 						/* Next: PAWN CAPTURES */
@@ -996,7 +1084,9 @@ class Utils {
 											mPromo.group(7), mPromo.group(8), mPromo.group(9), mPromo.group(10),
 											mPromo.group(11), complete, board, color, moveList);
 									}
-									ret.add(move);
+									if (!sanityCheck(move, color, board, moveList)) {
+										ret.add(move);
+									}
 								}
 								break;
 							}
@@ -1009,7 +1099,9 @@ class Utils {
 												m.group(10), m.group(11), moveStr, board,
 												color, moveList);
 							}
-							ret.add(move);
+							if (!sanityCheck(move, color, board, moveList)) {
+								ret.add(move);
+							}
 						}
 						break;
 					default: // Anything else
@@ -1052,7 +1144,9 @@ class Utils {
 									}
 								}
 							}
-							ret.add(move);
+							if (!sanityCheck(move, color, board, moveList)) {
+								ret.add(move);
+							}
 						}
 						break;
 				}
@@ -1060,6 +1154,19 @@ class Utils {
 		}
 		return ret;
 	}
-	
+
+	/* Performs a sanity check on the move MOVE made by player with
+	 * COLOR pieces on BOARD. Returns true if the move made would leave
+	 * the player initiating the move in check. */
+	public static boolean sanityCheck(Move move, int color, Board board, ArrayList<ArrayList<String>> moveList) {
+		Square[] testSquares = Board.copySquares(board);
+		Board testBoard = new Board(testSquares, board.getP1(), board.getP2(), board.getNextToMove());
+		makeMove(move, testBoard, 1);
+		if (isCheck(color, testBoard, moveList)) {
+			return true;
+		}
+		return false;
+	}
 
 }
+

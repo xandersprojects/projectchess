@@ -21,6 +21,26 @@ public class Knight extends Piece {
 		this.notMoved();
 	}
 
+	/* Creates a new Knight with preset settings. */
+	Knight (int color, int position, boolean moved) {
+		super();
+		if (color == 1) {
+			this.setTextRepr("N");
+		} else {
+			this.setTextRepr("n");
+		}
+		this.setColor(color);
+		this.setPieceCode(3);
+		this.setSliding(false);
+		this.setValue(3.0);
+		this.setPosition(position);
+		if (moved) {
+			this.nowMoved();
+		} else {
+			this.notMoved();
+		}
+	}
+
 	public int[] getBases() {
 		return bases();
 	}

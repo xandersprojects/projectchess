@@ -10,8 +10,53 @@ public class Board {
 		_white = white;
 		_black = black;
 		_board = new Square[128];
+		_toMove = 1;
 		initializer();
 		setup();
+	}
+
+	Board (Square[] board, Player white, Player black, int toMove) {
+		_board = board;
+		_white = white;
+		_black = black;
+		_toMove = toMove;
+	}
+
+	void takeCopy(Board board) {
+		_board = board.getSquares();
+		_white = board.getP1();
+		_black = board.getP2();
+		_toMove = board.getNextToMove();
+	}
+
+	static Square[] copySquares(Board board) {
+		Square[] ret = new Square[128];
+		for (int i = 0; i < 128; i++) {
+			ret[i] = new Square(null);
+			if (!board.getSquares()[i].isEmpty()) {
+				Piece found = board.getSquares()[i].getPiece();
+				int code = found.getPieceCode();
+				Piece toPut = null;
+				switch (code) {
+					case 1:
+						toPut = new Pawn(found.getColor(), found.getPosition(), found.hasMoved());
+					case 2:
+						toPut = new Rook(found.getColor(), found.getPosition(), found.hasMoved());
+					case 3:
+						toPut = new Knight(found.getColor(), found.getPosition(), found.hasMoved());
+					case 4:
+						toPut = new Bishop(found.getColor(), found.getPosition(), found.hasMoved());
+					case 5:
+						toPut = new Queen(found.getColor(), found.getPosition(), found.hasMoved());
+					case 6:
+						toPut = new King(found.getColor(), found.getPosition(), found.hasMoved());
+				}
+				ret[i].putPiece(found);
+			} else {
+				ret[i].putPiece(null);
+			}
+		}
+		return ret;
 	}
 
 	/** Initializes squares into the board. */
@@ -101,8 +146,63 @@ public class Board {
 		_board[103].putPiece(h7);
 	}
 
+	/* Prints, in text format, this board. */
+	void printBoard() {
+		System.out.println("  ===================");
+		Square[] current = getSquares();
+		String rank = "|";
+		for (int i = current.length - 1; i >= 0; i--) {
+
+			if (i % 16 == 0) {
+				String ranknum = Integer.toString(i / 16 + 1);
+				Piece curr = current[i].getPiece();
+				if (curr == null) {
+					rank = "-" + " " + rank;
+				} else {
+					rank = curr.getTextRepr() + " " + rank;
+				}
+				rank = ranknum + " | " + rank;
+				System.out.println(rank);
+				rank = "|";
+				continue;
+			}
+			if ((i & 8) == 8) {
+				continue;
+			}
+			Piece curr = current[i].getPiece();
+			if (curr == null) {
+				rank = "-" + " " + rank;
+				continue;
+			} else {
+				rank = curr.getTextRepr() + " " + rank;
+			}
+		}
+		System.out.println("  ===================");
+		System.out.println("    a b c d e f g h  ");
+	}
+
 	Square[] getSquares() {
 		return _board;
+	}
+
+	Player getP1() {
+		return _white;
+	}
+
+	Player getP2() {
+		return _black;
+	}
+
+	int getNextToMove() {
+		return _toMove;
+	}
+
+	void switchTurn() {
+		if (_toMove == 1) {
+			_toMove = 0;
+		} else {
+			_toMove = 1;
+		}
 	}
 
 	/** The current board. */
@@ -111,5 +211,7 @@ public class Board {
 	private Player _white;
 	/** Black player on this board. */
 	private Player _black;
+	/** The next player to move; 1 for white, 0 for black. */
+	private int _toMove;
 	
 }

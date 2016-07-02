@@ -1,5 +1,6 @@
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * Represents a chess game.
@@ -25,6 +26,15 @@ public class Game {
 		_player2 = black;
 		_movesList = new ArrayList<ArrayList<String>>();
 		_board = new Board(_player1, _player2);
+		// _gameHistory = new LinkedList<Board>();
+	}
+
+	Game(Player player1, Player player2, Board board, ArrayList<ArrayList<String>> movesList) {
+		_player1 = player1;
+		_player2 = player2;
+		_board = board;
+		_movesList = movesList;
+		// _gameHistory = gameHistory;
 	}
 
 
@@ -40,9 +50,13 @@ public class Game {
 		return _board;
 	}
 
-	ArrayList<ArrayList<String>> getHistory() {
+	ArrayList<ArrayList<String>> getMoveHistory() {
 		return _movesList;
 	}
+
+	// LinkedList<Board> getGameHistory() {
+	// 	return _gameHistory;
+	// }
 
 	/* Prints, in text format, the current board. */
 	void printBoard() {
@@ -90,6 +104,20 @@ public class Game {
 		}
 	}
 
+	/* Removes the last entry in the movesList. */
+	void removeLast() {
+		int cycles = _movesList.size();
+		ArrayList<String> lastCycle = _movesList.get(cycles - 1);
+		if (lastCycle.size() == 1) { /* Black was the one who made the last move */
+			_movesList.remove(cycles - 1);
+			ArrayList<String> realLastCycle = _movesList.get(cycles - 2);
+			realLastCycle.remove(2);
+		} else if (lastCycle.size() == 2) { /* White was the one who made the last move */
+			lastCycle.remove(1);
+		}
+		printMoveHistory();
+	}
+
 	/** While loop controlling game flow. */
 	void play() {
 		while (true /* Game is not yet over*/) {
@@ -109,7 +137,7 @@ public class Game {
 				System.out.println("Your move: ");
 				String trying = scan.next();
 				Move propose = white.proposeMove(_board, trying, _movesList);
-				while (propose == null)  {
+				while (propose == null || Utils.sanityCheck(propose, 1, _board, _movesList))  {
 					System.out.println("That move is invalid. Try again: ");
 					trying = scan.next();
 					propose = white.proposeMove(_board, trying, _movesList);
@@ -117,7 +145,8 @@ public class Game {
 				/* Check that the move is chess-valid i.e. doesn't move a pinned piece; doesn't move out of check; */
 				/* Checking valid move goes in Utils. Players actually make the move. */
 				/* Actually make the move. */
-				white.makeMove(propose, _board);
+				Utils.makeMove(propose, _board, 0);
+				_board.switchTurn();
 				turn.add(propose.getStr());
 				if (Utils.isCheck(0, _board, _movesList)) {
 					System.out.println("Check!");
@@ -141,7 +170,8 @@ public class Game {
 					trying = scan.next();
 					propose = black.proposeMove(_board, trying, _movesList);
 				}
-				black.makeMove(propose, _board);
+				Utils.makeMove(propose, _board, 0);
+				_board.switchTurn();
 				turn.add(propose.getStr());
 				if (Utils.isCheck(1, _board, _movesList)) {
 					System.out.println("Check!");
@@ -159,5 +189,7 @@ public class Game {
 	private Board _board;
 	/* List of moves for this game. */
 	private ArrayList<ArrayList<String>> _movesList;
+	/* LinkedList of Boards, with each link made after a single move. */
+	// private LinkedList<Board> _gameHistory;
 	
 }

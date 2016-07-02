@@ -23,6 +23,26 @@ public class Pawn extends Piece {
 		this.notMoved();
 	}
 
+	/* Creates a new Pawn with preset settings. */
+	Pawn (int color, int position, boolean moved) {
+		super();
+		if (color == 1) {
+			this.setTextRepr("P");
+		} else {
+			this.setTextRepr("p");
+		}
+		this.setColor(color);
+		this.setPieceCode(1);
+		this.setSliding(true);
+		this.setValue(1.0);
+		this.setPosition(position);
+		if (moved) {
+			this.nowMoved();
+		} else {
+			this.notMoved();
+		}
+	}
+
 	public int[] getBases() {
 		if (this.getColor() == 1) {
 			return whitePawnPossible();

@@ -21,6 +21,26 @@ public class Bishop extends Piece {
 		this.notMoved();
 	}
 
+	/* Creates a new Bishop with preset settings. */
+	Bishop (int color, int position, boolean moved) {
+		super();
+		if (color == 1) {
+			this.setTextRepr("B");
+		} else {
+			this.setTextRepr("b");
+		}
+		this.setColor(color);
+		this.setPieceCode(4);
+		this.setSliding(true);
+		this.setValue(3.0);
+		this.setPosition(position);
+		if (moved) {
+			this.nowMoved();
+		} else {
+			this.notMoved();
+		}
+	}
+
 	public int[] getBases() {
 		return bases();
 	}

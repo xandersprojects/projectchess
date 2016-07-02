@@ -21,6 +21,26 @@ public class King extends Piece {
 		this.notMoved();
 	}
 
+	/* Creates a new King with preset settings. */
+	King (int color, int position, boolean moved) {
+		super();
+		if (color == 1) {
+			this.setTextRepr("K");
+		} else {
+			this.setTextRepr("k");
+		}
+		this.setColor(color);
+		this.setPieceCode(6);
+		this.setSliding(true);
+		this.setValue(1000.0);
+		this.setPosition(position);
+		if (moved) {
+			this.nowMoved();
+		} else {
+			this.notMoved();
+		}
+	}
+
 	public int[] getBases() {
 		return bases();
 	}
