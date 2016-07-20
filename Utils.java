@@ -589,6 +589,23 @@ class Utils {
 					if (rook.hasMoved()) {
 						return null;
 					}
+					/* Ensure that enemy pieces do not control squares in the castling path. */
+					ArrayList<Integer> allEnemyScopes = new ArrayList<Integer>();
+					for (int x = 0; x < 128; x++) {
+						if (all[x].isEmpty()) {
+							continue;
+						}
+						Piece enemy = all[x].getPiece();
+						if (enemy.getColor() != color) {
+							ArrayList<Integer> enemyScope = findScope(enemy, board, 0, moveList);
+							for (int y = 0; y < enemyScope.size(); y++) {
+								allEnemyScopes.add(enemyScope.get(y));
+							}
+						}
+					}
+					if (allEnemyScopes.contains(5)) {
+						return null;
+					}
 					/* Return the castling move. Castling will be handled by the player. */
 					return new Move(king, 4, 6, full, null, true, false, false);
 				} else {
@@ -615,6 +632,22 @@ class Utils {
 					Rook rook = (Rook) all[119].getPiece();
 					/* Ensure the rook hasn't moved yet. */
 					if (rook.hasMoved()) {
+						return null;
+					}
+					ArrayList<Integer> allEnemyScopes = new ArrayList<Integer>();
+					for (int x = 0; x < 128; x++) {
+						if (all[x].isEmpty()) {
+							continue;
+						}
+						Piece enemy = all[x].getPiece();
+						if (enemy.getColor() != color) {
+							ArrayList<Integer> enemyScope = findScope(enemy, board, 0, moveList);
+							for (int y = 0; y < enemyScope.size(); y++) {
+								allEnemyScopes.add(enemyScope.get(y));
+							}
+						}
+					}
+					if (allEnemyScopes.contains(117)) {
 						return null;
 					}
 					/* Return the castling move. Castling will be handled by the player. */
@@ -648,6 +681,22 @@ class Utils {
 					if (rook.hasMoved()) {
 						return null;
 					}
+					ArrayList<Integer> allEnemyScopes = new ArrayList<Integer>();
+					for (int x = 0; x < 128; x++) {
+						if (all[x].isEmpty()) {
+							continue;
+						}
+						Piece enemy = all[x].getPiece();
+						if (enemy.getColor() != color) {
+							ArrayList<Integer> enemyScope = findScope(enemy, board, 0, moveList);
+							for (int y = 0; y < enemyScope.size(); y++) {
+								allEnemyScopes.add(enemyScope.get(y));
+							}
+						}
+					}
+					if (allEnemyScopes.contains(3)) {
+						return null;
+					}
 					/* Return the castling move. Castling will be handled by the player. */
 					return new Move(king, 4, 2, full, null, false, true, false);
 				} else {
@@ -674,6 +723,22 @@ class Utils {
 					Rook rook = (Rook) all[112].getPiece();
 					/* Ensure the rook hasn't moved yet. */
 					if (rook.hasMoved()) {
+						return null;
+					}
+					ArrayList<Integer> allEnemyScopes = new ArrayList<Integer>();
+					for (int x = 0; x < 128; x++) {
+						if (all[x].isEmpty()) {
+							continue;
+						}
+						Piece enemy = all[x].getPiece();
+						if (enemy.getColor() != color) {
+							ArrayList<Integer> enemyScope = findScope(enemy, board, 0, moveList);
+							for (int y = 0; y < enemyScope.size(); y++) {
+								allEnemyScopes.add(enemyScope.get(y));
+							}
+						}
+					}
+					if (allEnemyScopes.contains(115)) {
 						return null;
 					}
 					/* Return the castling move. Castling will be handled by the player. */
@@ -778,7 +843,9 @@ class Utils {
 		/* Special case for en passant. */
 		if (move.getEnPassant()) {
 			all[move.getDest()].putPiece(moving);
-			moving.setPosition(move.getDest());
+			if (test == 0) {
+				moving.setPosition(move.getDest());
+			}
 			all[move.getStart()].clear();
 			if (move.getPiece().getColor() == 1) {
 				all[move.getDest() - 16].clear();
@@ -804,9 +871,13 @@ class Utils {
 			/* The rook is found separately here. */
 			Rook rook = (Rook) board.getSquares()[move.getDest() + 1].getPiece();
 			all[move.getDest()].putPiece(moving);
-			moving.setPosition(move.getDest());
+			if (test == 0) {
+				moving.setPosition(move.getDest());
+			}
 			all[move.getDest() - 1].putPiece(rook);
-			rook.setPosition(move.getDest() - 1);
+			if (test == 0) {
+				rook.setPosition(move.getDest() - 1);
+			}
 			all[move.getStart()].clear();
 			all[move.getDest() + 1].clear();
 			if (test == 0) {
@@ -816,9 +887,13 @@ class Utils {
 		} else if (move.getQCast()) {
 			Rook rook = (Rook) board.getSquares()[move.getDest() - 2].getPiece();
 			all[move.getDest()].putPiece(moving);
-			moving.setPosition(move.getDest());
+			if (test == 0) {
+				moving.setPosition(move.getDest());
+			}
 			all[move.getDest() + 1].putPiece(rook);
-			rook.setPosition(move.getDest() + 1);
+			if (test == 0) {
+				rook.setPosition(move.getDest() + 1);
+			}
 			all[move.getStart()].clear();
 			all[move.getDest() - 2].clear();
 			if (test == 0) {
@@ -830,7 +905,9 @@ class Utils {
 		/* Handle promotion case */
 		if (move.getPromo() != null) {
 			all[move.getDest()].putPiece(move.getPromo());
-			move.getPromo().setPosition(move.getDest());
+			if (test == 0) {
+				move.getPromo().setPosition(move.getDest());
+			}
 		} else { /* Place original piece on destination square */
 			all[move.getDest()].putPiece(moving);
 			if (test == 0) {
@@ -978,7 +1055,7 @@ class Utils {
 
 	/* Returns true if player with COLOR pieces is in check on BOARD. */
 	public static boolean isCheck(int color, Board board, ArrayList<ArrayList<String>> moveList) {
-		int kingSquare = -1;
+		int kingSquare = findKing(color, board);
 		Square[] squares = board.getSquares();
 		ArrayList<Integer> enemyScopes = new ArrayList<Integer>();
 
@@ -987,10 +1064,7 @@ class Utils {
 				continue;
 			}
 			Piece piece = squares[i].getPiece();
-			/* King found */
-			if (piece.getPieceCode() == 6 && color == piece.getColor()) {
-				kingSquare = i;
-			} else if (piece.getColor() != color) {
+			if (piece.getColor() != color) {
 				ArrayList<Integer> scope = findScope(piece, board, 2, moveList);
 				for (int j = 0; j < scope.size(); j++) {
 					enemyScopes.add(scope.get(j));
@@ -1006,6 +1080,25 @@ class Utils {
 
 		return false;
 
+	}
+
+	/* Returns the square number of the king for player with COLOR pieces on BOARD. */
+	public static int findKing(int color, Board board) {
+		int kingSquare = -1;
+		Square[] squares = board.getSquares();
+
+		for (int i = 0; i < 128; i++) {
+			if (squares[i].isEmpty()) {
+				continue;
+			}
+			Piece piece = squares[i].getPiece();
+			/* King found */
+			if (piece.getPieceCode() == 6 && color == piece.getColor()) {
+				kingSquare = i;
+				break;
+			}
+		}
+		return kingSquare;
 	}
 
 	/* Returns a list of all possible moves for player with COLOR pieces on
@@ -1131,7 +1224,9 @@ class Utils {
 									ambiguities[2] = sqName;
 									int incr = 0;
 									while (move == null) {
+										System.out.println("TESTINGGGGGGGGG");
 										String tryMove = moveStr.substring(0, 1) + ambiguities[incr] + moveStr.substring(1);
+										System.out.println(tryMove);
 										Matcher mTry = anyMove.matcher(tryMove);
 										if (mTry.find()) {
 											move = Utils.regex_translate(mTry.group(1), mTry.group(2), mTry.group(3),
@@ -1152,6 +1247,15 @@ class Utils {
 				}
 			}
 		}
+
+		int kingSquare = findKing(color, board);
+		King king = (King) squares[kingSquare].getPiece();
+		if (!king.hasMoved()) {
+			/* Check for kingside castling */
+
+			/* Check for queenside castling */
+		}
+
 		return ret;
 	}
 
