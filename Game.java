@@ -126,56 +126,75 @@ public class Game {
 			ArrayList<String> turn = new ArrayList<String>();
 			turn.add(String.valueOf(_movesList.size() + 1));
 			_movesList.add(turn);
+
 			/* White player's move */
+
 			if (_player1.getType() == 0) { /** Player 1 is human */
-				ArrayList<Move> moves = Utils.moveGenerator(1, _board, _movesList);
-				for (int i = 0; i < moves.size(); i++) {
-					System.out.println(moves.get(i).getStr());
-				}
+
 				HumanPlayer white = (HumanPlayer) _player1;
 				Scanner scan = new Scanner(System.in);
 				System.out.println("Your move: ");
 				String trying = scan.next();
 				Move propose = white.proposeMove(_board, trying, _movesList);
+
 				while (propose == null || Utils.sanityCheck(propose, 1, _board, _movesList))  {
 					System.out.println("That move is invalid. Try again: ");
 					trying = scan.next();
 					propose = white.proposeMove(_board, trying, _movesList);
 				}
-				/* Check that the move is chess-valid i.e. doesn't move a pinned piece; doesn't move out of check; */
-				/* Checking valid move goes in Utils. Players actually make the move. */
-				/* Actually make the move. */
+
 				Utils.makeMove(propose, _board, 0);
 				_board.switchTurn();
 				turn.add(propose.getStr());
-				if (Utils.isCheck(0, _board, _movesList)) {
-					System.out.println("Check!");
-				}
+			} else {
+				ComputerPlayer white = (ComputerPlayer) _player1;
+				Move propose = white.proposeMove(1, _board, _movesList, 1);
+				Utils.makeMove(propose, _board, 0);
+				_board.switchTurn();
+				turn.add(propose.getStr());
+			}
+			if (Utils.isCheckMate(0, _board, _movesList)) {
+				System.out.println("White wins!");
+				printBoard();
+				break;
+			} else if (Utils.isCheck(0, _board, _movesList)) {
+				System.out.println("Check!");
 			}
 			printMoveHistory();
 			printBoard();
 			System.out.println();
+
+			/* Black player's move */
 			if (_player2.getType() == 0) { /** Player 2 is human */
-				ArrayList<Move> moves = Utils.moveGenerator(0, _board, _movesList);
-				for (int i = 0; i < moves.size(); i++) {
-					System.out.println(moves.get(i).getStr());
-				}
+
 				HumanPlayer black = (HumanPlayer) _player2;
 				Scanner scan = new Scanner(System.in);
 				System.out.println("Your move: ");
 				String trying = scan.next();
 				Move propose = black.proposeMove(_board, trying, _movesList);
+
 				while (propose == null) {
 					System.out.println("That move is invalid. Try again: ");
 					trying = scan.next();
 					propose = black.proposeMove(_board, trying, _movesList);
 				}
+
 				Utils.makeMove(propose, _board, 0);
 				_board.switchTurn();
 				turn.add(propose.getStr());
-				if (Utils.isCheck(1, _board, _movesList)) {
-					System.out.println("Check!");
-				}
+			} else {
+				ComputerPlayer black = (ComputerPlayer) _player2;
+				Move propose = black.proposeMove(0, _board, _movesList, 3);
+				Utils.makeMove(propose, _board, 0);
+				_board.switchTurn();
+				turn.add(propose.getStr());
+			}
+			if (Utils.isCheckMate(1, _board, _movesList)) {
+				System.out.println("Black wins!");
+				printBoard();
+				break;
+			} else if (Utils.isCheck(1, _board, _movesList)) {
+				System.out.println("Check!");
 			}
 			printMoveHistory();
 		}

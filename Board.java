@@ -29,6 +29,24 @@ public class Board {
 		_toMove = board.getNextToMove();
 	}
 
+	/* Creates an entirely (new) copied set of Squares with BOARD. Each square will
+	 * contain a pointer to the piece originally on BOARD. */
+	static Square[] copySquaresNaive(Board board) {
+		Square[] ret = new Square[128];
+		for (int i = 0; i < 128; i++) {
+			ret[i] = new Square(null);
+			if (!board.getSquares()[i].isEmpty()) {
+				Piece found = board.getSquares()[i].getPiece();
+				ret[i].putPiece(found);
+			} else {
+				ret[i].putPiece(null);
+			}
+		}
+		return ret;
+	}
+
+	/* Creates an entirely (new) copied set of Squares with BOARD. Each square will 
+	 * contain a NEW PIECE. */
 	static Square[] copySquares(Board board) {
 		Square[] ret = new Square[128];
 		for (int i = 0; i < 128; i++) {
@@ -39,19 +57,25 @@ public class Board {
 				Piece toPut = null;
 				switch (code) {
 					case 1:
-						toPut = new Pawn(found.getColor(), found.getPosition(), found.hasMoved());
+						toPut = new Pawn(found.getColor(), i, found.hasMoved(), Math.random());
+						break;
 					case 2:
-						toPut = new Rook(found.getColor(), found.getPosition(), found.hasMoved());
+						toPut = new Rook(found.getColor(), i, found.hasMoved());
+						break;
 					case 3:
-						toPut = new Knight(found.getColor(), found.getPosition(), found.hasMoved());
+						toPut = new Knight(found.getColor(), i, found.hasMoved());
+						break;
 					case 4:
-						toPut = new Bishop(found.getColor(), found.getPosition(), found.hasMoved());
+						toPut = new Bishop(found.getColor(), i, found.hasMoved());
+						break;
 					case 5:
-						toPut = new Queen(found.getColor(), found.getPosition(), found.hasMoved());
+						toPut = new Queen(found.getColor(), i, found.hasMoved());
+						break;
 					case 6:
-						toPut = new King(found.getColor(), found.getPosition(), found.hasMoved());
+						toPut = new King(found.getColor(), i, found.hasMoved());
+						break;
 				}
-				ret[i].putPiece(found);
+				ret[i].putPiece(toPut);
 			} else {
 				ret[i].putPiece(null);
 			}

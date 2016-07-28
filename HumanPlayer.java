@@ -24,8 +24,6 @@ public class HumanPlayer extends Player {
 		Move propose = null;
 		if (m.find()) {
 
-			System.out.println("Found");
-
 			/** A SUMMARY OF THE 11 GROUPS FROM REGEX PATTERN:
 			  * 1 - Piece to move along with an optional qualifier, OR a Pawn to move
 			  * 2 - Piece to move along with an optional qualifier

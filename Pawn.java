@@ -43,6 +43,30 @@ public class Pawn extends Piece {
 		}
 	}
 
+	/* Creates a new Pawn with preset settings. */
+	Pawn (int color, int position, boolean moved, double random) {
+		super();
+		// if (color == 0 && position % 16 == 0) {
+		// 	System.out.println("Creating a new black a pawn with ID " + Double.toString(random));
+		// }
+		if (color == 1) {
+			this.setTextRepr("P");
+		} else {
+			this.setTextRepr("p");
+		}
+		this.setColor(color);
+		this.setPieceCode(1);
+		this.setSliding(true);
+		this.setValue(1.0);
+		this.setPosition(position);
+		if (moved) {
+			this.nowMoved();
+		} else {
+			this.notMoved();
+		}
+		_random = random;
+	}
+
 	public int[] getBases() {
 		if (this.getColor() == 1) {
 			return whitePawnPossible();
@@ -68,9 +92,15 @@ public class Pawn extends Piece {
 		return _two;
 	}
 
+	double getRandom() {
+		return _random;
+	}
+
 
 	/** True iff this pawn has already moved. */
 	private boolean _moved;
 	/** True iff this pawn has moved two spaces on its first move. */
 	private boolean _two;
+	/** Random number ID for testing purposes */
+	private double _random;
 }

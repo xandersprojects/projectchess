@@ -167,8 +167,6 @@ class Utils {
 					}
 				}
 				if (found == null) {
-					System.out.println("Hurrr");
-					System.out.println(full);
 					System.out.println("No pawn can make this move.");
 					return null;
 				}
@@ -920,6 +918,7 @@ class Utils {
 		if (test == 0) {
 			System.out.println(move.getStr());
 		}
+		board.switchTurn();
 	}
 
 
@@ -1079,7 +1078,15 @@ class Utils {
 		}
 
 		return false;
+	}
 
+	/* Returns true if player with COLOR pieces is in checkmate on BOARD. */
+	public static boolean isCheckMate(int color, Board board, ArrayList<ArrayList<String>> moveList) {
+		ArrayList<Move> moves = moveGenerator(color, board, moveList);
+		if (moves.size() == 0) {
+			return true;
+		}
+		return false;
 	}
 
 	/* Returns the square number of the king for player with COLOR pieces on BOARD. */
@@ -1108,6 +1115,9 @@ class Utils {
 
 		Square[] squares = board.getSquares();
 
+		String pattern = "^(([RNBQK]{1}([a-h]+[1-8]|[a-h]|[1-8])?)|([a-h]))?([x])?(([a-h]+[1-8])|(0-0)|(0-0-0))([=][RNBQ])?([+]|[#])?$";
+		Pattern anyMove = Pattern.compile(pattern);
+
 		for (int i = 0; i < 128; i++) {
 			if (squares[i].isEmpty()) {
 				continue;
@@ -1115,8 +1125,6 @@ class Utils {
 			Piece piece = squares[i].getPiece();
 			if (piece.getColor() == color) {
 				int code = piece.getPieceCode();
-				String pattern = "^(([RNBQK]{1}([a-h]+[1-8]|[a-h]|[1-8])?)|([a-h]))?([x])?(([a-h]+[1-8])|(0-0)|(0-0-0))([=][RNBQ])?([+]|[#])?$";
-				Pattern anyMove = Pattern.compile(pattern);
 				switch (code) {
 					case 1: // Pawn
 						ArrayList<Integer> pawnThrusts = findScope(piece, board, 0, moveList);
@@ -1224,12 +1232,10 @@ class Utils {
 									ambiguities[2] = sqName;
 									int incr = 0;
 									while (move == null) {
-										System.out.println("TESTINGGGGGGGGG");
 										String tryMove = moveStr.substring(0, 1) + ambiguities[incr] + moveStr.substring(1);
-										System.out.println(tryMove);
 										Matcher mTry = anyMove.matcher(tryMove);
 										if (mTry.find()) {
-											move = Utils.regex_translate(mTry.group(1), mTry.group(2), mTry.group(3),
+											move = regex_translate(mTry.group(1), mTry.group(2), mTry.group(3),
 														mTry.group(4), mTry.group(5), mTry.group(6),
 														mTry.group(7), mTry.group(8), mTry.group(9),
 														mTry.group(10), mTry.group(11), tryMove, board,
@@ -1252,8 +1258,215 @@ class Utils {
 		King king = (King) squares[kingSquare].getPiece();
 		if (!king.hasMoved()) {
 			/* Check for kingside castling */
-
+			String kSideCast = "0-0";
+			Move kCast = null;
+			Matcher kTry = anyMove.matcher(kSideCast);
+			if (kTry.find()) {
+				kCast = regex_translate(kTry.group(1), kTry.group(2), kTry.group(3),
+							kTry.group(4), kTry.group(5), kTry.group(6),
+							kTry.group(7), kTry.group(8), kTry.group(9),
+							kTry.group(10), kTry.group(11), kSideCast, board,
+							color, moveList);
+				if (kCast != null) {
+					ret.add(kCast);
+				}
+			}
 			/* Check for queenside castling */
+			String qSideCast = "0-0-0";
+			Move qCast = null;
+			Matcher qTry = anyMove.matcher(qSideCast);
+			if (qTry.find()) {
+				qCast = regex_translate(qTry.group(1), qTry.group(2), qTry.group(3),
+							qTry.group(4), qTry.group(5), qTry.group(6),
+							qTry.group(7), qTry.group(8), qTry.group(9),
+							qTry.group(10), qTry.group(11), qSideCast, board,
+							color, moveList);
+				if (qCast != null) {
+					ret.add(qCast);
+				}
+			}
+		}
+
+		return ret;
+	}
+
+	/* Returns a list of all possible string representations of moves for player
+	 * with COLOR pieces on the current BOARD position. */
+	public static ArrayList<String> moveStrGenerator(int color, Board board, ArrayList<ArrayList<String>> moveList) {
+		ArrayList<String> ret = new ArrayList<String>();
+
+		Square[] squares = board.getSquares();
+
+		String pattern = "^(([RNBQK]{1}([a-h]+[1-8]|[a-h]|[1-8])?)|([a-h]))?([x])?(([a-h]+[1-8])|(0-0)|(0-0-0))([=][RNBQ])?([+]|[#])?$";
+		Pattern anyMove = Pattern.compile(pattern);
+
+		for (int i = 0; i < 128; i++) {
+			if (squares[i].isEmpty()) {
+				continue;
+			}
+			Piece piece = squares[i].getPiece();
+			if (piece.getColor() == color) {
+				int code = piece.getPieceCode();
+				switch (code) {
+					case 1: // Pawn
+						ArrayList<Integer> pawnThrusts = findScope(piece, board, 0, moveList);
+
+						for (int j = 0; j < pawnThrusts.size(); j++) {
+							String moveStr = sqToNotation(pawnThrusts.get(j));
+							/* Handle the promotion case */
+							if (pawnThrusts.get(j) / 16 == 7 || pawnThrusts.get(j) / 16 == 0) {
+								String[] promos = {"=Q", "=R", "=N", "=B"};
+								for (int k = 0; k < promos.length; k++) {
+									String complete = moveStr + promos[k];
+									Matcher mPromo = anyMove.matcher(complete);
+									Move move = null;
+									if (mPromo.find()) {
+										move = Utils.regex_translate(mPromo.group(1), mPromo.group(2), 
+											mPromo.group(3), mPromo.group(4), mPromo.group(5), mPromo.group(6),
+											mPromo.group(7), mPromo.group(8), mPromo.group(9), mPromo.group(10),
+											mPromo.group(11), complete, board, color, moveList);
+									}
+									if (!sanityCheck(move, color, board, moveList)) {
+										ret.add(move.getStr());
+									}
+								}
+								break;
+							}
+							Matcher m = anyMove.matcher(moveStr);
+							Move move = null;
+							if (m.find()) {
+								move = Utils.regex_translate(m.group(1), m.group(2), m.group(3),
+												m.group(4), m.group(5), m.group(6),
+												m.group(7), m.group(8), m.group(9),
+												m.group(10), m.group(11), moveStr, board,
+												color, moveList);
+							}
+							if (!sanityCheck(move, color, board, moveList)) {
+								ret.add(move.getStr());
+							}
+						}
+
+						/* Next: PAWN CAPTURES */
+
+						ArrayList<Integer> pawnCaps = findScope(piece, board, 1, moveList);
+						for (int j = 0; j < pawnCaps.size(); j++) {
+							String moveStr = "";
+							String pawnSq = sqToNotation(piece.getPosition());
+							String file = pawnSq.substring(0, 1);
+							moveStr = file + "x" + sqToNotation(pawnCaps.get(j));
+							/* Handle promotion case */
+							if (pawnCaps.get(j) / 16 == 7 || pawnCaps.get(j) / 16 == 0) {
+								String[] promos = {"=Q", "=R", "=N", "=B"};
+								for (int k = 0; k < promos.length; k++) {
+									String complete = moveStr + promos[k];
+									Matcher mPromo = anyMove.matcher(complete);
+									Move move = null;
+									if (mPromo.find()) {
+										move = Utils.regex_translate(mPromo.group(1), mPromo.group(2), 
+											mPromo.group(3), mPromo.group(4), mPromo.group(5), mPromo.group(6),
+											mPromo.group(7), mPromo.group(8), mPromo.group(9), mPromo.group(10),
+											mPromo.group(11), complete, board, color, moveList);
+									}
+									if (!sanityCheck(move, color, board, moveList)) {
+										ret.add(move.getStr());
+									}
+								}
+								break;
+							}
+							Matcher m = anyMove.matcher(moveStr);
+							Move move = null;
+							if (m.find()) {
+								move = Utils.regex_translate(m.group(1), m.group(2), m.group(3),
+												m.group(4), m.group(5), m.group(6),
+												m.group(7), m.group(8), m.group(9),
+												m.group(10), m.group(11), moveStr, board,
+												color, moveList);
+							}
+							if (!sanityCheck(move, color, board, moveList)) {
+								ret.add(move.getStr());
+							}
+						}
+						break;
+					default: // Anything else
+
+						ArrayList<Integer> pieceMoves = findScope(piece, board, 2, moveList);
+						for (int j = 0; j < pieceMoves.size(); j++) {
+							String moveStr = piece.getTextRepr().toUpperCase();
+
+							if (!squares[pieceMoves.get(j)].isEmpty()) {
+								moveStr = moveStr + "x";
+							}
+							moveStr = moveStr + sqToNotation(pieceMoves.get(j));
+							Matcher m = anyMove.matcher(moveStr);
+							Move move = null;
+							if (m.find()) {
+								move = Utils.regex_translate(m.group(1), m.group(2), m.group(3),
+												m.group(4), m.group(5), m.group(6),
+												m.group(7), m.group(8), m.group(9),
+												m.group(10), m.group(11), moveStr, board,
+												color, moveList);
+								if (move == null) {
+									int piecePos = piece.getPosition();
+									String sqName = sqToNotation(piecePos);
+									String[] ambiguities = new String[3];
+									ambiguities[0] = sqName.substring(0, 1);
+									ambiguities[1] = sqName.substring(1, 2);
+									ambiguities[2] = sqName;
+									int incr = 0;
+									while (move == null) {
+										String tryMove = moveStr.substring(0, 1) + ambiguities[incr] + moveStr.substring(1);
+										Matcher mTry = anyMove.matcher(tryMove);
+										if (mTry.find()) {
+											move = regex_translate(mTry.group(1), mTry.group(2), mTry.group(3),
+														mTry.group(4), mTry.group(5), mTry.group(6),
+														mTry.group(7), mTry.group(8), mTry.group(9),
+														mTry.group(10), mTry.group(11), tryMove, board,
+														color, moveList);
+										}
+										incr++;
+									}
+								}
+							}
+							if (!sanityCheck(move, color, board, moveList)) {
+								ret.add(move.getStr());
+							}
+						}
+						break;
+				}
+			}
+		}
+
+		int kingSquare = findKing(color, board);
+		King king = (King) squares[kingSquare].getPiece();
+		if (!king.hasMoved()) {
+			/* Check for kingside castling */
+			String kSideCast = "0-0";
+			Move kCast = null;
+			Matcher kTry = anyMove.matcher(kSideCast);
+			if (kTry.find()) {
+				kCast = regex_translate(kTry.group(1), kTry.group(2), kTry.group(3),
+							kTry.group(4), kTry.group(5), kTry.group(6),
+							kTry.group(7), kTry.group(8), kTry.group(9),
+							kTry.group(10), kTry.group(11), kSideCast, board,
+							color, moveList);
+				if (kCast != null) {
+					ret.add(kCast.getStr());
+				}
+			}
+			/* Check for queenside castling */
+			String qSideCast = "0-0-0";
+			Move qCast = null;
+			Matcher qTry = anyMove.matcher(qSideCast);
+			if (qTry.find()) {
+				qCast = regex_translate(qTry.group(1), qTry.group(2), qTry.group(3),
+							qTry.group(4), qTry.group(5), qTry.group(6),
+							qTry.group(7), qTry.group(8), qTry.group(9),
+							qTry.group(10), qTry.group(11), qSideCast, board,
+							color, moveList);
+				if (qCast != null) {
+					ret.add(qCast.getStr());
+				}
+			}
 		}
 
 		return ret;
