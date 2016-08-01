@@ -28,10 +28,8 @@ public class ComputerPlayer extends Player {
 
 			Square[] testSquares = Board.copySquares(board);
 			Board testBoard = new Board(testSquares, board.getP1(), board.getP2(), board.getNextToMove());
-			testBoard.printBoard();
 
 			String testMove = moves.get(a);
-			System.out.println("Testing: " + testMove);
 			Matcher m = anyMove.matcher(testMove);
 			Move move = null;
 			if (m.find()) {
@@ -44,39 +42,28 @@ public class ComputerPlayer extends Player {
 
 			Utils.makeMove(move, testBoard, 0);
 
-			testBoard.printBoard();
-
 			int toPass = 1;
 			if (color == 1) {
 				toPass = 0;
 			}
 
 			ScoredMove scored = minimax(toPass, testBoard, moveList, depth - 1, testMove);
-			System.out.println("Testing: " + "Result: " + scored.getValue());
 
 			if (propose == null) {
-				System.out.println("First case: Propose is null");
 				propose = scored;
-				System.out.println("Best move replaced with " + propose.getMove());
-				System.out.println("The evaluation for this move is: " + propose.getValue());
 			} else if (color == 1) {
 				if (scored.getValue() > propose.getValue()) {
-					System.out.println("Second case: White to move and this is the best move so far");
 					propose = scored;
-					System.out.println("Best move replaced with " + propose.getMove());
 				}
 			} else if (color == 0) {
 				if (scored.getValue() < propose.getValue()) {
-					System.out.println("Third case: Black to move and this is the best move so far");
 					propose = scored;
-					System.out.println("Best move replaced with " + propose.getMove());
 				}
 			}
 
 		}
 
 		String finalMoveStr = propose.getMove();
-		System.out.println(finalMoveStr);
 		Matcher m = anyMove.matcher(finalMoveStr);
 		Move finalMove = null;
 		if (m.find()) {
@@ -87,7 +74,6 @@ public class ComputerPlayer extends Player {
 							color, moveList);
 		}
 
-		System.out.println("Evaluated at : " + Double.toString(propose.getValue()));
 		return finalMove;
 
 	}
@@ -98,14 +84,8 @@ public class ComputerPlayer extends Player {
 	  * and the centipawn value of that move. */
 	public ScoredMove minimax(int color, Board board, ArrayList<ArrayList<String>> moveList, int depth, String moveStr) {
 
-		// System.out.println("Color: " + Integer.toString(color));
-		// System.out.println("Now analyzing: " + moveStr + " at depth: " + Integer.toString(depth));
-
 		/* Base case: Depth is 0 */
 		if (depth == 0) {
-			System.out.println("Depth 0 reached.");
-			board.printBoard();
-			System.out.println("Score for this board is: " + centipawnValue(board, moveList));
 			return new ScoredMove(moveStr, centipawnValue(board, moveList));
 		}
 

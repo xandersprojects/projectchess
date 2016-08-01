@@ -148,7 +148,7 @@ public class Game {
 				turn.add(propose.getStr());
 			} else {
 				ComputerPlayer white = (ComputerPlayer) _player1;
-				Move propose = white.proposeMove(1, _board, _movesList, 2);
+				Move propose = white.proposeMove(1, _board, _movesList, 3);
 				Utils.makeMove(propose, _board, 0);
 				_board.switchTurn();
 				turn.add(propose.getStr());
@@ -184,7 +184,7 @@ public class Game {
 				turn.add(propose.getStr());
 			} else {
 				ComputerPlayer black = (ComputerPlayer) _player2;
-				Move propose = black.proposeMove(0, _board, _movesList, 2);
+				Move propose = black.proposeMove(0, _board, _movesList, 3);
 				Utils.makeMove(propose, _board, 0);
 				_board.switchTurn();
 				turn.add(propose.getStr());

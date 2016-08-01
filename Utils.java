@@ -601,7 +601,7 @@ class Utils {
 							}
 						}
 					}
-					if (allEnemyScopes.contains(5)) {
+					if (allEnemyScopes.contains(5) || allEnemyScopes.contains(6)) {
 						return null;
 					}
 					/* Return the castling move. Castling will be handled by the player. */
@@ -645,7 +645,7 @@ class Utils {
 							}
 						}
 					}
-					if (allEnemyScopes.contains(117)) {
+					if (allEnemyScopes.contains(117) || allEnemyScopes.contains(118)) {
 						return null;
 					}
 					/* Return the castling move. Castling will be handled by the player. */
@@ -692,7 +692,7 @@ class Utils {
 							}
 						}
 					}
-					if (allEnemyScopes.contains(3)) {
+					if (allEnemyScopes.contains(3) || allEnemyScopes.contains(2)) {
 						return null;
 					}
 					/* Return the castling move. Castling will be handled by the player. */
@@ -736,7 +736,7 @@ class Utils {
 							}
 						}
 					}
-					if (allEnemyScopes.contains(115)) {
+					if (allEnemyScopes.contains(115) || allEnemyScopes.contains(114)) {
 						return null;
 					}
 					/* Return the castling move. Castling will be handled by the player. */
