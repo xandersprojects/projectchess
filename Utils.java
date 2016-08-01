@@ -562,7 +562,7 @@ class Utils {
 			} else if (kCast != null) {
 				/* Look at kCast. If contains something, this is a kingside castling move. */
 				if (color == 1) {
-					if (all[4].isEmpty()) {
+					if (all[4].isEmpty() || all[7].isEmpty()) {
 						return null;
 					}
 					/* Find the king */
@@ -607,7 +607,7 @@ class Utils {
 					/* Return the castling move. Castling will be handled by the player. */
 					return new Move(king, 4, 6, full, null, true, false, false);
 				} else {
-					if (all[116].isEmpty()) {
+					if (all[116].isEmpty() || all[119].isEmpty()) {
 						return null;
 					}
 					/* Find the king */
@@ -654,7 +654,7 @@ class Utils {
 			} else if (qCast != null) {
 				/* Look at qCast. If contains something, this is a queenside castling move. */
 				if (color == 1) {
-					if (all[4].isEmpty()) {
+					if (all[4].isEmpty() || all[0].isEmpty()) {
 						return null;
 					}
 					/* Find the king */
@@ -698,7 +698,7 @@ class Utils {
 					/* Return the castling move. Castling will be handled by the player. */
 					return new Move(king, 4, 2, full, null, false, true, false);
 				} else {
-					if (all[116].isEmpty()) {
+					if (all[116].isEmpty() || all[112].isEmpty()) {
 						return null;
 					}
 					/* Find the king */
@@ -964,7 +964,7 @@ class Utils {
 					default:
 						if (control == 1 || control == 2) {
 							curr += direction;
-							if (!squares[curr].isEmpty()) {
+							if (inBounds(curr) && !squares[curr].isEmpty()) {
 								if (squares[curr].getPiece().getColor() != color) {
 									ret.add(curr);
 								}

@@ -31,6 +31,7 @@ public class ComputerPlayer extends Player {
 			testBoard.printBoard();
 
 			String testMove = moves.get(a);
+			System.out.println("Testing: " + testMove);
 			Matcher m = anyMove.matcher(testMove);
 			Move move = null;
 			if (m.find()) {
@@ -41,36 +42,41 @@ public class ComputerPlayer extends Player {
 								color, moveList);
 			}
 
-			// System.out.println("FIRST LAYER: ");
-			// System.out.println("ACTUAL BOARD BEFORE: ");
-			// board.printBoard();
-			// System.out.println("TESTBOARD BEFORE: ");
-			// testBoard.printBoard();
-
 			Utils.makeMove(move, testBoard, 0);
 
-			// System.out.println("ACTUAL BOARD AFTER: ");
-			// board.printBoard();
-			// System.out.println("TESTBOARD AFTER: ");
-			// testBoard.printBoard();
+			testBoard.printBoard();
 
-			ScoredMove scored = minimax(color, testBoard, moveList, depth - 1, testMove);
+			int toPass = 1;
+			if (color == 1) {
+				toPass = 0;
+			}
+
+			ScoredMove scored = minimax(toPass, testBoard, moveList, depth - 1, testMove);
+			System.out.println("Testing: " + "Result: " + scored.getValue());
 
 			if (propose == null) {
+				System.out.println("First case: Propose is null");
 				propose = scored;
+				System.out.println("Best move replaced with " + propose.getMove());
+				System.out.println("The evaluation for this move is: " + propose.getValue());
 			} else if (color == 1) {
 				if (scored.getValue() > propose.getValue()) {
+					System.out.println("Second case: White to move and this is the best move so far");
 					propose = scored;
+					System.out.println("Best move replaced with " + propose.getMove());
 				}
 			} else if (color == 0) {
 				if (scored.getValue() < propose.getValue()) {
+					System.out.println("Third case: Black to move and this is the best move so far");
 					propose = scored;
+					System.out.println("Best move replaced with " + propose.getMove());
 				}
 			}
 
 		}
 
 		String finalMoveStr = propose.getMove();
+		System.out.println(finalMoveStr);
 		Matcher m = anyMove.matcher(finalMoveStr);
 		Move finalMove = null;
 		if (m.find()) {
@@ -81,6 +87,7 @@ public class ComputerPlayer extends Player {
 							color, moveList);
 		}
 
+		System.out.println("Evaluated at : " + Double.toString(propose.getValue()));
 		return finalMove;
 
 	}
@@ -96,7 +103,10 @@ public class ComputerPlayer extends Player {
 
 		/* Base case: Depth is 0 */
 		if (depth == 0) {
-			return new ScoredMove(moveStr, centipawnValue(board));
+			System.out.println("Depth 0 reached.");
+			board.printBoard();
+			System.out.println("Score for this board is: " + centipawnValue(board, moveList));
+			return new ScoredMove(moveStr, centipawnValue(board, moveList));
 		}
 
 		String pattern = "^(([RNBQK]{1}([a-h]+[1-8]|[a-h]|[1-8])?)|([a-h]))?([x])?(([a-h]+[1-8])|(0-0)|(0-0-0))([=][RNBQ])?([+]|[#])?$";
@@ -106,7 +116,7 @@ public class ComputerPlayer extends Player {
 		if (color == 1) {
 			ScoredMove best = new ScoredMove(null, Double.NEGATIVE_INFINITY);
 
-			ArrayList<String> nextDepth = Utils.moveStrGenerator(0, board, moveList);
+			ArrayList<String> nextDepth = Utils.moveStrGenerator(1, board, moveList);
 
 			for (int b = 0; b < nextDepth.size(); b++) {
 
@@ -121,23 +131,17 @@ public class ComputerPlayer extends Player {
 									m.group(4), m.group(5), m.group(6),
 									m.group(7), m.group(8), m.group(9),
 									m.group(10), m.group(11), testMove, testBoard,
-									0, moveList);
+									1, moveList);
 				}
-
-				// System.out.println("BOARD before: ");
-				// board.printBoard();
-				// System.out.println("TESTBOARD before: ");
-				// testBoard.printBoard();
 
 				Utils.makeMove(move, testBoard, 0);
 
-				// System.out.println("BOARD after: ");
-				// board.printBoard();
-				// System.out.println("TESTBOARD after: ");
-				// testBoard.printBoard();
+				if (Utils.isCheckMate(0, testBoard, moveList)) {
+					return new ScoredMove(moveStr, Double.POSITIVE_INFINITY);
+				}
 
-				ScoredMove eval = minimax(0, testBoard, moveList, depth - 1, nextDepth.get(b));
-				if (eval.getValue() > best.getValue()) {
+				ScoredMove eval = minimax(0, testBoard, moveList, depth - 1, moveStr);
+				if (best.getMove() == null || eval.getValue() > best.getValue()) {
 					best = eval;
 				}
 
@@ -147,7 +151,7 @@ public class ComputerPlayer extends Player {
 		/* If we are dealing with the black player, we are trying to minimize our move */
 			ScoredMove best = new ScoredMove(null, Double.POSITIVE_INFINITY);
 
-			ArrayList<String> nextDepth = Utils.moveStrGenerator(1, board, moveList);		
+			ArrayList<String> nextDepth = Utils.moveStrGenerator(0, board, moveList);		
 
 			for (int c = 0; c < nextDepth.size(); c++) {
 
@@ -162,23 +166,17 @@ public class ComputerPlayer extends Player {
 									m.group(4), m.group(5), m.group(6),
 									m.group(7), m.group(8), m.group(9),
 									m.group(10), m.group(11), testMove, testBoard,
-									1, moveList);
+									0, moveList);
 				}
-
-				// System.out.println("BOARD before: ");
-				// board.printBoard();
-				// System.out.println("TESTBOARD before: ");
-				// testBoard.printBoard();
 
 				Utils.makeMove(move, testBoard, 0);
 
-				// System.out.println("BOARD after: ");
-				// board.printBoard();
-				// System.out.println("TESTBOARD after: ");
-				// testBoard.printBoard();
+				if (Utils.isCheckMate(1, testBoard, moveList)) {
+					return new ScoredMove(moveStr, Double.NEGATIVE_INFINITY);
+				}
 
-				ScoredMove eval = minimax(1, testBoard, moveList, depth - 1, nextDepth.get(c));
-				if (eval.getValue() < best.getValue()) {
+				ScoredMove eval = minimax(1, testBoard, moveList, depth - 1, moveStr);
+				if (best.getMove() == null || eval.getValue() < best.getValue()) {
 					best = eval;
 				}
 
@@ -191,7 +189,7 @@ public class ComputerPlayer extends Player {
 	/** Calculate the centipawn value of the board. Factors taken into consideration:
 	  * 	- MATERIAL
 	  */
-	public double centipawnValue(Board board) {
+	public double centipawnValue(Board board, ArrayList<ArrayList<String>> moveList) {
 		return materialCount(board);
 	}
 
