@@ -29,6 +29,22 @@ public class Board {
 		_toMove = board.getNextToMove();
 	}
 
+	int zobristHash (int[] zobrist) {
+		int hashValue = 0;
+		for (int i = 0; i < 128; i++) {
+			if (_board[i].isEmpty()) {
+				continue;
+			}
+			Piece piece = _board[i].getPiece();
+			int pieceCode = piece.getPieceCode();
+			int pieceColor = piece.getColor();
+			pieceColor += 1;
+			int thisValue = i * pieceCode * pieceColor;
+			hashValue = hashValue ^ thisValue;
+		}
+		return hashValue;
+	}
+
 	/* Creates an entirely (new) copied set of Squares with BOARD. Each square will
 	 * contain a pointer to the piece originally on BOARD. */
 	static Square[] copySquaresNaive(Board board) {

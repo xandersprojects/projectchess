@@ -2,6 +2,8 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import java.security.*;
+
 /**
  * Represents a chess game.
  */
@@ -14,19 +16,21 @@ public class Game {
 		if (player1 == 0) {
 			white = new HumanPlayer(1);
 		} else if (player1 == 1) {
-			white = new ComputerPlayer(1);
+			long[] zobrist = zobristTableGenerator();
+			white = new ComputerPlayer(1, zobrist);
 		}
 
 		if (player2 == 0) {
 			black = new HumanPlayer(0);
 		} else if (player2 == 1) {
-			black = new ComputerPlayer(0);
+			long[] zobrist = zobristTableGenerator();
+			black = new ComputerPlayer(0, zobrist);
 		}
 		_player1 = white;
 		_player2 = black;
 		_movesList = new ArrayList<ArrayList<String>>();
 		_board = new Board(_player1, _player2);
-		// _gameHistory = new LinkedList<Board>();
+		_zobristTable = zobristTableGenerator();
 	}
 
 	Game(Player player1, Player player2, Board board, ArrayList<ArrayList<String>> movesList) {
@@ -34,6 +38,7 @@ public class Game {
 		_player2 = player2;
 		_board = board;
 		_movesList = movesList;
+		_zobristTable = zobristTableGenerator();
 		// _gameHistory = gameHistory;
 	}
 
@@ -123,6 +128,7 @@ public class Game {
 		while (true /* Game is not yet over*/) {
 			printBoard();
 			System.out.println();
+			System.out.println("This board's evaluation is: " + ComputerPlayer.centipawnValue(_board, _movesList));
 			ArrayList<String> turn = new ArrayList<String>();
 			turn.add(String.valueOf(_movesList.size() + 1));
 			_movesList.add(turn);
@@ -148,7 +154,7 @@ public class Game {
 				turn.add(propose.getStr());
 			} else {
 				ComputerPlayer white = (ComputerPlayer) _player1;
-				Move propose = white.proposeMove(1, _board, _movesList, 3);
+				Move propose = white.proposeMove(1, _board, _movesList, 5);
 				Utils.makeMove(propose, _board, 0);
 				_board.switchTurn();
 				turn.add(propose.getStr());
@@ -163,6 +169,7 @@ public class Game {
 			printMoveHistory();
 			printBoard();
 			System.out.println();
+			System.out.println("This board's evaluation is: " + ComputerPlayer.centipawnValue(_board, _movesList));
 
 			/* Black player's move */
 			if (_player2.getType() == 0) { /** Player 2 is human */
@@ -184,10 +191,15 @@ public class Game {
 				turn.add(propose.getStr());
 			} else {
 				ComputerPlayer black = (ComputerPlayer) _player2;
-				Move propose = black.proposeMove(0, _board, _movesList, 3);
+				long startTime = System.nanoTime();
+				Move propose = black.proposeMove(0, _board, _movesList, 5);
 				Utils.makeMove(propose, _board, 0);
 				_board.switchTurn();
 				turn.add(propose.getStr());
+				long endTime = System.nanoTime();
+				long length = (endTime - startTime) / 1000000;
+				double duration = (double) length / 1000.0;
+				System.out.println("This turn took " + Double.toString(duration) + " seconds to calculate.");
 			}
 			if (Utils.isCheckMate(1, _board, _movesList)) {
 				System.out.println("Black wins!");
@@ -200,6 +212,33 @@ public class Game {
 		}
 	}
 
+	/* Generates a random Zobrist table to generate Zobrist keys later.
+	 * How the indices work:
+	 * Square number * 12 will get you to the "start" index of the square.
+	 * 1, 2, 3, 4, 5, 6 are for black pawn, rook, knight, bishop, queen, king respectively.
+	 * 7, 8, 9, 10, 11, 12 are for white pawn, rook, knight, bishop, queen, king respectively.
+	 * Since there are 128 squares, there will be 128 * 12 = 1536 entries, which
+	 * range from indices 0 to 1535. Thus, starting at index 1536, we have:
+	 * 1536: Number for white kingside castling
+	 * 1537: Number for black kingside castling
+	 * 1538: Number for white queenside castling
+	 * 1539: Number for black queenside castling
+	 * 1540-1547: Numbers for target files where en passant is possible
+	 * 1548: Number indicating who's turn it is to move.
+	 * This makes 1549 entries total, which is the size of the zobrist table. */
+	long[] zobristTableGenerator() {
+		long[] zobrist = new long[1549];
+		for (int i = 0; i < zobrist.length; i++) {
+			zobrist[i] = rng();
+		}
+		return zobrist;
+	}
+
+	public static long rng() {
+		SecureRandom random = new SecureRandom();
+		return random.nextLong();
+	}
+
 	/* Player 1 of this game, handling white. */
 	private Player _player1;
 	/* Player 2 of this game, handling black. */
@@ -208,7 +247,7 @@ public class Game {
 	private Board _board;
 	/* List of moves for this game. */
 	private ArrayList<ArrayList<String>> _movesList;
-	/* LinkedList of Boards, with each link made after a single move. */
-	// private LinkedList<Board> _gameHistory;
+	/* Zobrist table for this game. */
+	public long[] _zobristTable;
 	
 }
