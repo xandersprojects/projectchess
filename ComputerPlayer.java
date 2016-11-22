@@ -91,14 +91,14 @@ public class ComputerPlayer extends Player {
 							color, moveList);
 		}
 
-		System.out.println("All instantaneously best moves: ");
-		for (int a = 0; a < allProposed.size(); a++) {
-			if (a == allProposed.size() - 1) {
-				System.out.println("The final move was accepted as best: " + allProposed.get(a) + " at value " + Double.toString(allProposedVals.get(a)) + ".");
-			} else {
-				System.out.println(allProposed.get(a) + " was rejected at value " + Double.toString(allProposedVals.get(a)) + ".");
-			}
-		}
+		// System.out.println("All instantaneously best moves: ");
+		// for (int a = 0; a < allProposed.size(); a++) {
+		// 	if (a == allProposed.size() - 1) {
+		// 		System.out.println("The final move was accepted as best: " + allProposed.get(a) + " at value " + Double.toString(allProposedVals.get(a)) + ".");
+		// 	} else {
+		// 		System.out.println(allProposed.get(a) + " was rejected at value " + Double.toString(allProposedVals.get(a)) + ".");
+		// 	}
+		// }
 
 		return finalMove;
 

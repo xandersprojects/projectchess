@@ -8,6 +8,16 @@ public class Main {
 
 	public static void main(String[] args) {
 		try {
+			/* Test mode */
+			long[] zobrist1 = Game.zobristTableGenerator();
+			long[] zobrist2 = Game.zobristTableGenerator();
+			if (args[0].compareTo("--test") == 0) {
+				ComputerPlayer white = new ComputerPlayer(1, zobrist1);
+				ComputerPlayer black = new ComputerPlayer(0, zobrist2);
+				Test.runTests(white, black);
+				return;
+			}
+			/* End test mode */
 			int p1 = Integer.parseInt(args[0]);
 			int p2 = Integer.parseInt(args[1]);
 			if (args.length != 2) {

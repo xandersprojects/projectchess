@@ -915,18 +915,17 @@ class Utils {
 		/* Clear piece on the start square */
 		all[move.getStart()].clear();
 		/* Print out the move made. */
-		if (test == 0) {
-			System.out.println(move.getStr());
-		}
+		// if (test == 0) {
+		// 	System.out.println(move.getStr());
+		// }
 		board.switchTurn();
 	}
 
 
 	/* Returns an ArrayList of all possible square positions this PIECE
-	 * can maneuver to on BOARD. If CONTROL is:
-	 * 0, then we are looking for only the squares pawns control (i.e. not the squares
-	 * directly in front of the pawn it can go to, but where it could check a king)
-	 * 1, then we are looking for only the squares the pawn control.
+	 * can maneuver to on BOARD. If PIECE is a pawn, and CONTROL is:
+	 * 0, then we are looking for only the squares pawns can advance to.
+	 * 1, then we are looking for only the squares the pawn control. (where it could check a king)
 	 * 2, then we are looking for everything. */
 	public static ArrayList<Integer> findScope(Piece piece, Board board, int control, ArrayList<ArrayList<String>> moveList) {
 		int color = piece.getColor();

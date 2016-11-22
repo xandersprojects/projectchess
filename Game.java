@@ -154,7 +154,7 @@ public class Game {
 				turn.add(propose.getStr());
 			} else {
 				ComputerPlayer white = (ComputerPlayer) _player1;
-				Move propose = white.proposeMove(1, _board, _movesList, 5);
+				Move propose = white.proposeMove(1, _board, _movesList, 2);
 				Utils.makeMove(propose, _board, 0);
 				_board.switchTurn();
 				turn.add(propose.getStr());
@@ -192,7 +192,7 @@ public class Game {
 			} else {
 				ComputerPlayer black = (ComputerPlayer) _player2;
 				long startTime = System.nanoTime();
-				Move propose = black.proposeMove(0, _board, _movesList, 5);
+				Move propose = black.proposeMove(0, _board, _movesList, 2);
 				Utils.makeMove(propose, _board, 0);
 				_board.switchTurn();
 				turn.add(propose.getStr());
@@ -226,7 +226,7 @@ public class Game {
 	 * 1540-1547: Numbers for target files where en passant is possible
 	 * 1548: Number indicating who's turn it is to move.
 	 * This makes 1549 entries total, which is the size of the zobrist table. */
-	long[] zobristTableGenerator() {
+	public static long[] zobristTableGenerator() {
 		long[] zobrist = new long[1549];
 		for (int i = 0; i < zobrist.length; i++) {
 			zobrist[i] = rng();
